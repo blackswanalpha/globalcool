@@ -1,0 +1,409 @@
+<!-- Chat Widgets Component -->
+<!-- WhatsApp and Live Chat Floating Buttons -->
+<div class="fixed bottom-6 right-6 z-50 flex flex-col items-end space-y-4" x-data="chatWidgets()">
+
+    <!-- Chat Panel (Hidden by default) - Positioned relative to main container -->
+    <div x-show="liveChatOpen"
+         x-transition:enter="transition ease-out duration-300 transform"
+         x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-200 transform"
+         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+         x-transition:leave-end="opacity-0 scale-95 translate-y-4"
+         class="w-80 h-96 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden mb-4"
+         x-cloak>
+
+        <!-- Chat Header -->
+        <div class="bg-gradient-to-r from-primary-500 to-primary-600 px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-white font-semibold text-sm">Live Chat</h3>
+                    <p class="text-white text-opacity-80 text-xs" x-text="chatStarted ? 'We\'re online now' : 'Start a conversation'"></p>
+                </div>
+            </div>
+            <button @click="liveChatOpen = false"
+                    class="text-white hover:text-gray-200 transition-colors duration-200">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Contact Form (shown before chat starts) -->
+        <div x-show="!chatStarted" class="p-4 h-80 flex flex-col">
+            <div class="text-center mb-4">
+                <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-8 h-8 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                    </svg>
+                </div>
+                <h4 class="text-lg font-semibold text-gray-800 mb-2">Start a Conversation</h4>
+                <p class="text-sm text-gray-600">Please provide your contact information to begin chatting with our HVAC experts.</p>
+            </div>
+
+            <form @submit.prevent="startChat()" class="flex-1 flex flex-col space-y-3">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                    <input type="text"
+                           x-model="contactForm.name"
+                           required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                           placeholder="Enter your full name">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
+                    <input type="email"
+                           x-model="contactForm.email"
+                           required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                           placeholder="Enter your email">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number (Optional)</label>
+                    <input type="tel"
+                           x-model="contactForm.phone"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                           placeholder="Enter your phone number">
+                </div>
+
+                <div class="flex-1 flex items-end">
+                    <button type="submit"
+                            :disabled="!contactForm.name.trim() || !contactForm.email.trim()"
+                            class="w-full bg-primary-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-primary-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Start Chat
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Chat Interface (shown after contact form is submitted) -->
+        <div x-show="chatStarted" class="flex flex-col h-80">
+            <!-- Chat Messages Area -->
+            <div class="flex-1 p-4 overflow-y-auto bg-gray-50 chat-scrollbar" id="chat-messages">
+                <!-- Welcome Message -->
+                <div class="mb-4">
+                    <div class="flex items-start space-x-2">
+                        <div class="w-6 h-6 bg-primary-500 rounded-full flex items-center justify-center flex-shrink-0">
+                            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                        </div>
+                        <div class="bg-white rounded-lg rounded-tl-none px-3 py-2 shadow-sm max-w-xs">
+                            <p class="text-sm text-gray-800" x-text="`Hello ${contactForm.name}! 👋 How can we help you with your HVAC needs today?`"></p>
+                            <span class="text-xs text-gray-500 mt-1 block">Just now</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic messages will be loaded here -->
+                <div id="dynamic-messages"></div>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="border-t border-gray-200 p-3">
+                <form @submit.prevent="sendMessage()" class="flex items-center space-x-2">
+                    <input type="text"
+                           x-model="messageText"
+                           placeholder="Type your message..."
+                           class="flex-1 px-3 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    <button type="submit"
+                            :disabled="!messageText.trim()"
+                            class="w-8 h-8 bg-primary-500 text-white rounded-full flex items-center justify-center hover:bg-primary-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Chat Widget -->
+    <div class="relative">
+        <!-- Live Chat Button -->
+        <button @click="liveChatOpen = !liveChatOpen"
+                class="w-10 h-10 md:w-12 md:h-12 bg-primary-500 text-white rounded-full shadow-lg hover:bg-primary-600 hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center group relative">
+            <!-- Chat Icon -->
+            <svg x-show="!liveChatOpen" class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+            <!-- Close Icon -->
+            <svg x-show="liveChatOpen" class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            
+            <!-- Notification Badge -->
+            <div x-show="hasNewMessages"
+                 class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-pulse">
+                1
+            </div>
+
+            <!-- Tooltip -->
+            <div class="absolute right-16 top-1/2 transform -translate-y-1/2 bg-gray-900 text-white text-sm px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+                Live Chat
+            </div>
+        </button>
+    </div>
+    
+    <!-- WhatsApp Button -->
+    <div class="relative group">
+        <a href="https://wa.me/254700000000?text=Hello%2C%20I%27m%20interested%20in%20your%20HVAC%20services.%20Could%20you%20please%20provide%20more%20information%3F"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="w-10 h-10 md:w-12 md:h-12 bg-whatsapp text-white rounded-full shadow-lg hover:bg-whatsapp hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center chat-bounce">
+            <!-- WhatsApp Icon -->
+            <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
+            </svg>
+        </a>
+        
+        <!-- Tooltip -->
+        <div class="absolute right-16 top-1/2 transform -translate-y-1/2 bg-gray-900 text-white text-sm px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+            WhatsApp Chat
+        </div>
+    </div>
+</div>
+
+<!-- Alpine.js Component Script -->
+<script>
+function chatWidgets() {
+    return {
+        liveChatOpen: false,
+        chatStarted: false,
+        messageText: '',
+        hasNewMessages: false,
+        sessionId: null,
+        isLoading: false,
+        contactForm: {
+            name: '',
+            email: '',
+            phone: ''
+        },
+
+        init() {
+            // Initialize chat widget
+            console.log('Chat widgets initialized');
+
+            // Check if user has already started a chat session
+            this.sessionId = localStorage.getItem('chat_session_id') || null;
+            const contactInfo = localStorage.getItem('chat_contact_info');
+
+            if (this.sessionId && contactInfo) {
+                this.contactForm = JSON.parse(contactInfo);
+                this.chatStarted = true;
+                this.loadChatHistory();
+            }
+
+            // Debug: Watch for state changes
+            this.$watch('liveChatOpen', (value) => {
+                console.log('Live chat open state changed:', value);
+            });
+
+            // Start polling for new messages when chat is active
+            this.startPolling();
+        },
+
+        startPolling() {
+            // Poll for new messages every 5 seconds when chat is active
+            setInterval(() => {
+                if (this.chatStarted && this.sessionId) {
+                    this.checkForNewMessages();
+                }
+            }, 5000);
+        },
+
+        async checkForNewMessages() {
+            if (!this.sessionId) return;
+
+            try {
+                const response = await fetch(`/leads/chat/history/${this.sessionId}/`);
+                const data = await response.json();
+
+                if (data.success && data.messages.length > 0) {
+                    const dynamicMessages = document.getElementById('dynamic-messages');
+                    const currentMessageCount = dynamicMessages.children.length;
+
+                    // Check if there are new messages
+                    if (data.messages.length > currentMessageCount + 1) { // +1 for welcome message
+                        // Clear and reload all messages
+                        dynamicMessages.innerHTML = '';
+
+                        data.messages.forEach(msg => {
+                            if (msg.type !== 'bot' || !msg.content.includes("How can we help you with your HVAC needs today?")) {
+                                this.addMessage(msg.content, msg.type);
+                            }
+                        });
+
+                        // Show notification if chat is closed
+                        if (!this.liveChatOpen) {
+                            this.hasNewMessages = true;
+                        }
+
+                        // Scroll to bottom
+                        this.scrollToBottom();
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking for new messages:', error);
+            }
+        },
+
+        scrollToBottom() {
+            const messagesContainer = document.getElementById('chat-messages');
+            if (messagesContainer) {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        },
+
+        async startChat() {
+            if (!this.contactForm.name.trim() || !this.contactForm.email.trim()) {
+                return;
+            }
+
+            this.isLoading = true;
+
+            try {
+                // Store contact information
+                localStorage.setItem('chat_contact_info', JSON.stringify(this.contactForm));
+
+                // Generate session ID if not exists
+                if (!this.sessionId) {
+                    this.sessionId = this.generateSessionId();
+                    localStorage.setItem('chat_session_id', this.sessionId);
+                }
+
+                // Start the chat
+                this.chatStarted = true;
+
+                console.log('Chat started with contact info:', this.contactForm);
+
+            } catch (error) {
+                console.error('Error starting chat:', error);
+                alert('Error starting chat. Please try again.');
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        generateSessionId() {
+            return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        },
+        
+        async sendMessage() {
+            if (!this.messageText.trim() || this.isLoading) return;
+
+            const message = this.messageText.trim();
+            this.messageText = '';
+            this.isLoading = true;
+
+            // Add user message to UI immediately
+            this.addMessage(message, 'user');
+
+            try {
+                // Send message to backend
+                const response = await fetch('/leads/chat/message/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': this.getCSRFToken()
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        session_id: this.sessionId,
+                        name: this.contactForm.name,
+                        email: this.contactForm.email,
+                        phone: this.contactForm.phone
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Store session ID
+                    this.sessionId = data.session_id;
+                    localStorage.setItem('chat_session_id', this.sessionId);
+
+                    // Add bot response to UI
+                    this.addMessage(data.bot_message.content, 'bot');
+                } else {
+                    throw new Error(data.error || 'Failed to send message');
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+                this.addMessage('Sorry, there was an error sending your message. Please try again.', 'bot');
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async loadChatHistory() {
+            if (!this.sessionId) return;
+
+            try {
+                const response = await fetch(`/leads/chat/history/${this.sessionId}/`);
+                const data = await response.json();
+
+                if (data.success && data.messages.length > 0) {
+                    // Clear existing messages except welcome message
+                    const dynamicMessages = document.getElementById('dynamic-messages');
+                    dynamicMessages.innerHTML = '';
+
+                    // Add historical messages
+                    data.messages.forEach(msg => {
+                        if (msg.type !== 'bot' || msg.content !== "Hello! 👋 How can we help you with your HVAC needs today?") {
+                            this.addMessage(msg.content, msg.type);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading chat history:', error);
+            }
+        },
+
+        getCSRFToken() {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === 'csrftoken') {
+                    return value;
+                }
+            }
+            return '';
+        },
+        
+        addMessage(text, sender) {
+            const messagesContainer = document.getElementById('dynamic-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'mb-4';
+            
+            if (sender === 'user') {
+                messageDiv.innerHTML = `
+                    <div class="flex items-start space-x-2 justify-end">
+                        <div class="bg-primary-500 text-white rounded-lg rounded-tr-none px-3 py-2 shadow-sm max-w-xs">
+                            <p class="text-sm">${text}</p>
+                            <span class="text-xs text-primary-100 mt-1 block">Just now</span>
+                        </div>
+                        <div class="w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center flex-shrink-0">
+                            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        },
+        
+
+    }
+}
+</script>

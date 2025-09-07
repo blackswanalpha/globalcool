@@ -1,0 +1,498 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .customer-header {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .customer-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+    }
+
+    .customer-header * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .info-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e5e7eb;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .info-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .info-card h5 {
+        color: #374151;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .info-card h5 i {
+        color: #6366f1;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #6366f1;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+
+    .client-type-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .type-individual { background: #dbeafe; color: #1e40af; }
+    .type-business { background: #d1fae5; color: #065f46; }
+    .type-government { background: #fef3c7; color: #92400e; }
+    .type-ngo { background: #e0e7ff; color: #3730a3; }
+
+    .contact-method-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    .recent-item {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        transition: all 0.2s ease;
+    }
+
+    .recent-item:hover {
+        background: #f3f4f6;
+        border-color: #d1d5db;
+    }
+
+    .recent-item h6 {
+        margin-bottom: 0.5rem;
+        color: #374151;
+    }
+
+    .recent-item .text-muted {
+        font-size: 0.875rem;
+    }
+
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-new { background: #fef3c7; color: #92400e; }
+    .status-confirmed { background: #dbeafe; color: #1e40af; }
+    .status-in_progress { background: #fde68a; color: #92400e; }
+    .status-completed { background: #d1fae5; color: #065f46; }
+    .status-cancelled { background: #fee2e2; color: #991b1b; }
+    .status-sent { background: #dbeafe; color: #1e40af; }
+    .status-accepted { background: #d1fae5; color: #065f46; }
+    .status-rejected { background: #fee2e2; color: #991b1b; }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+    }
+
+    .btn-modern {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-modern-primary {
+        background: #6366f1;
+        color: white;
+        border: 1px solid #6366f1;
+    }
+
+    .btn-modern-primary:hover {
+        background: #4f46e5;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .btn-modern-secondary {
+        background: white;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+
+    .btn-modern-secondary:hover {
+        background: #f9fafb;
+        color: #374151;
+        border-color: #9ca3af;
+    }
+
+    .btn-modern-danger {
+        background: #ef4444;
+        color: white;
+        border: 1px solid #ef4444;
+    }
+
+    .btn-modern-danger:hover {
+        background: #dc2626;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: #6b7280;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: #d1d5db;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Include Enhanced Sidebar -->
+{% include 'components/admin_sidebar.html' %}
+
+<!-- Content Start -->
+<div class="content">
+    <!-- Include Enhanced Header -->
+    {% include 'components/admin_header.html' %}
+
+    <!-- Page Content -->
+    <div class="container-fluid pt-4 px-4">
+        <!-- Customer Header -->
+        <div class="customer-header">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h1 class="mb-2">
+                        <i class="fas fa-user me-3"></i>{{ customer.name }}
+                    </h1>
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <span class="client-type-badge type-{{ customer.client_type }}">
+                            {{ customer.get_client_type_display }}
+                        </span>
+                        {% if customer.preferred_contact_method %}
+                        <span class="contact-method-badge">
+                            {{ customer.get_preferred_contact_method_display }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="d-flex align-items-center gap-4 text-white-50">
+                        <span><i class="fas fa-envelope me-2"></i>{{ customer.email }}</span>
+                        <span><i class="fas fa-phone me-2"></i>{{ customer.phone }}</span>
+                        <span><i class="fas fa-calendar me-2"></i>Joined {{ customer.created_at|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <a href="{% url 'users:admin_customer_edit' customer.id %}" class="btn-modern btn-modern-primary">
+                        <i class="fas fa-edit"></i>Edit Customer
+                    </a>
+                    <a href="{% url 'users:admin_customers_list' %}" class="btn-modern btn-modern-secondary">
+                        <i class="fas fa-arrow-left"></i>Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Row -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-2">
+                <div class="stat-card">
+                    <div class="stat-number">{{ stats.total_bookings }}</div>
+                    <div class="stat-label">Total Bookings</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stat-card">
+                    <div class="stat-number">{{ stats.completed_bookings }}</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stat-card">
+                    <div class="stat-number">{{ stats.total_inquiries }}</div>
+                    <div class="stat-label">Inquiries</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stat-card">
+                    <div class="stat-number">{{ stats.total_quotations }}</div>
+                    <div class="stat-label">Quotations</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stat-card">
+                    <div class="stat-number">KSh {{ stats.total_spent|floatformat:0 }}</div>
+                    <div class="stat-label">Total Spent</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stat-card">
+                    <div class="stat-number">KSh {{ stats.avg_booking_value|floatformat:0 }}</div>
+                    <div class="stat-label">Avg. Booking</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Row -->
+        <div class="row g-4">
+            <!-- Customer Information -->
+            <div class="col-lg-4">
+                <div class="info-card">
+                    <h5><i class="fas fa-info-circle"></i>Customer Information</h5>
+                    <div class="mb-3">
+                        <strong>Full Name:</strong><br>
+                        {{ customer.name }}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Client Type:</strong><br>
+                        <span class="client-type-badge type-{{ customer.client_type }}">
+                            {{ customer.get_client_type_display }}
+                        </span>
+                    </div>
+                    {% if customer.company_name %}
+                    <div class="mb-3">
+                        <strong>Company:</strong><br>
+                        {{ customer.company_name }}
+                    </div>
+                    {% endif %}
+                    <div class="mb-3">
+                        <strong>Email:</strong><br>
+                        <a href="mailto:{{ customer.email }}">{{ customer.email }}</a>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Phone:</strong><br>
+                        <a href="tel:{{ customer.phone }}">{{ customer.phone }}</a>
+                    </div>
+                    {% if customer.address %}
+                    <div class="mb-3">
+                        <strong>Address:</strong><br>
+                        {{ customer.address|linebreaks }}
+                    </div>
+                    {% endif %}
+                    {% if customer.preferred_contact_method %}
+                    <div class="mb-3">
+                        <strong>Preferred Contact:</strong><br>
+                        {{ customer.get_preferred_contact_method_display }}
+                    </div>
+                    {% endif %}
+                    <div class="mb-0">
+                        <strong>Customer Since:</strong><br>
+                        {{ customer.created_at|date:"F d, Y" }}
+                    </div>
+                </div>
+
+                {% if customer.notes %}
+                <div class="info-card">
+                    <h5><i class="fas fa-sticky-note"></i>Internal Notes</h5>
+                    <p class="mb-0">{{ customer.notes|linebreaks }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="col-lg-8">
+                <!-- Recent Bookings -->
+                <div class="info-card">
+                    <h5><i class="fas fa-calendar-check"></i>Recent Bookings</h5>
+                    {% if recent_bookings %}
+                        {% for booking in recent_bookings %}
+                        <div class="recent-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6>{{ booking.service.name }}</h6>
+                                    <p class="text-muted mb-1">
+                                        <i class="fas fa-calendar me-1"></i>{{ booking.preferred_date|date:"M d, Y" }}
+                                        <i class="fas fa-clock ms-3 me-1"></i>{{ booking.get_preferred_time_slot_display }}
+                                    </p>
+                                    <p class="text-muted mb-0">
+                                        <small>ID: {{ booking.booking_id.hex|slice:":8"|upper }}</small>
+                                    </p>
+                                </div>
+                                <span class="status-badge status-{{ booking.status }}">
+                                    {{ booking.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <div class="text-center mt-3">
+                            <a href="{% url 'users:admin_bookings_list' %}?search={{ customer.email }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye me-1"></i>View All Bookings
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-times"></i>
+                            <p>No bookings yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Recent Inquiries -->
+                <div class="info-card">
+                    <h5><i class="fas fa-question-circle"></i>Recent Inquiries</h5>
+                    {% if recent_inquiries %}
+                        {% for inquiry in recent_inquiries %}
+                        <div class="recent-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6>{{ inquiry.subject }}</h6>
+                                    {% if inquiry.service %}
+                                    <p class="text-muted mb-1">
+                                        <i class="fas fa-tools me-1"></i>{{ inquiry.service.name }}
+                                    </p>
+                                    {% endif %}
+                                    <p class="text-muted mb-0">
+                                        <small><i class="fas fa-calendar me-1"></i>{{ inquiry.created_at|date:"M d, Y" }}</small>
+                                    </p>
+                                </div>
+                                <span class="status-badge status-{{ inquiry.status }}">
+                                    {{ inquiry.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-question-circle"></i>
+                            <p>No inquiries yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Recent Quotations -->
+                <div class="info-card">
+                    <h5><i class="fas fa-file-invoice"></i>Recent Quotations</h5>
+                    {% if recent_quotations %}
+                        {% for quotation in recent_quotations %}
+                        <div class="recent-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6>{{ quotation.title }}</h6>
+                                    <p class="text-muted mb-1">
+                                        <i class="fas fa-hashtag me-1"></i>{{ quotation.quote_number }}
+                                        <i class="fas fa-coins ms-3 me-1"></i>KSh {{ quotation.total|floatformat:0 }}
+                                    </p>
+                                    <p class="text-muted mb-0">
+                                        <small><i class="fas fa-calendar me-1"></i>{{ quotation.created_at|date:"M d, Y" }}</small>
+                                    </p>
+                                </div>
+                                <span class="status-badge status-{{ quotation.status }}">
+                                    {{ quotation.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <div class="text-center mt-3">
+                            <a href="{% url 'users:admin_quotations_list' %}?search={{ customer.email }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye me-1"></i>View All Quotations
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-file-invoice"></i>
+                            <p>No quotations yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="info-card border-danger">
+                    <h5 class="text-danger"><i class="fas fa-exclamation-triangle"></i>Danger Zone</h5>
+                    <p class="text-muted mb-3">
+                        Permanently delete this customer and all associated data. This action cannot be undone.
+                    </p>
+                    <a href="{% url 'users:admin_customer_delete' customer.id %}" class="btn-modern btn-modern-danger">
+                        <i class="fas fa-trash"></i>Delete Customer
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="bg-light rounded-top p-4">
+            <div class="row">
+                <div class="col-12 col-sm-6 text-center text-sm-start">
+                    &copy; <a href="{% url 'core:home' %}">Global Cool-Light E.A LTD</a>, All Right Reserved.
+                </div>
+                <div class="col-12 col-sm-6 text-center text-sm-end">
+                    Designed By <a href="#">Global Cool-Light Team</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

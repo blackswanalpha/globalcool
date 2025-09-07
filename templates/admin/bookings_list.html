@@ -1,0 +1,398 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}Booking Management - Global Cool-Light E.A LTD{% endblock %}
+
+{% block extra_css %}
+<style>
+    .filter-section {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .booking-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+    
+    .booking-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .status-new { background: #fef3c7; color: #92400e; }
+    .status-confirmed { background: #dbeafe; color: #1e40af; }
+    .status-in_progress { background: #fde68a; color: #92400e; }
+    .status-completed { background: #d1fae5; color: #065f46; }
+    .status-cancelled { background: #fee2e2; color: #991b1b; }
+    .status-rescheduled { background: #e0e7ff; color: #3730a3; }
+    
+    .priority-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .priority-low { background: #f3f4f6; color: #374151; }
+    .priority-normal { background: #dbeafe; color: #1e40af; }
+    .priority-high { background: #fed7aa; color: #ea580c; }
+    .priority-urgent { background: #fecaca; color: #dc2626; }
+    
+    .booking-meta {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 0.5rem;
+    }
+    
+    .booking-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+    
+    .btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    
+    .btn-primary-sm {
+        background: #004AAD;
+        color: white;
+        border: 1px solid #004AAD;
+    }
+    
+    .btn-primary-sm:hover {
+        background: #003d8f;
+        color: white;
+    }
+    
+    .btn-secondary-sm {
+        background: white;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+    
+    .btn-secondary-sm:hover {
+        background: #f9fafb;
+        color: #374151;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #004AAD;
+    }
+    
+    .stat-label {
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Sidebar Start -->
+<div class="sidebar pe-4 pb-3">
+    <nav class="navbar bg-light navbar-light">
+        <a href="{% url 'users:admin_dashboard' %}" class="navbar-brand mx-4 mb-3">
+            <h3 class="text-primary"><i class="fas fa-snowflake me-2"></i>Global Cool-Light</h3>
+        </a>
+        <div class="d-flex align-items-center ms-4 mb-4">
+            <div class="position-relative">
+                <img class="rounded-circle" src="{% static 'admin-img/user.jpg' %}" alt="" style="width: 40px; height: 40px;">
+                <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
+            </div>
+            <div class="ms-3">
+                <h6 class="mb-0">{{ user.get_full_name|default:user.email }}</h6>
+                <span>Admin</span>
+            </div>
+        </div>
+        <div class="navbar-nav w-100">
+            <a href="{% url 'users:admin_dashboard' %}" class="nav-item nav-link">
+                <i class="fa fa-tachometer-alt me-2"></i>Dashboard
+            </a>
+            <div class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown">
+                    <i class="fas fa-calendar-check me-2"></i>Bookings
+                </a>
+                <div class="dropdown-menu bg-transparent border-0">
+                    <a href="{% url 'users:admin_bookings_list' %}" class="dropdown-item active">All Bookings</a>
+                    <a href="{% url 'users:admin_bookings_list' %}?status=new" class="dropdown-item">Pending Bookings</a>
+                    <a href="{% url 'users:admin_bookings_list' %}?status=completed" class="dropdown-item">Completed Bookings</a>
+                </div>
+            </div>
+            <div class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fas fa-tools me-2"></i>Services
+                </a>
+                <div class="dropdown-menu bg-transparent border-0">
+                    <a href="#" class="dropdown-item">All Services</a>
+                    <a href="#" class="dropdown-item">Add Service</a>
+                    <a href="#" class="dropdown-item">Service Categories</a>
+                </div>
+            </div>
+            <a href="#" class="nav-item nav-link">
+                <i class="fas fa-briefcase me-2"></i>Portfolio
+            </a>
+            <a href="#" class="nav-item nav-link">
+                <i class="fas fa-file-invoice-dollar me-2"></i>Quotations
+            </a>
+            <a href="#" class="nav-item nav-link">
+                <i class="fas fa-users me-2"></i>Customers
+            </a>
+            <div class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fas fa-chart-bar me-2"></i>Reports
+                </a>
+                <div class="dropdown-menu bg-transparent border-0">
+                    <a href="#" class="dropdown-item">Revenue Reports</a>
+                    <a href="#" class="dropdown-item">Booking Analytics</a>
+                    <a href="#" class="dropdown-item">Customer Reports</a>
+                </div>
+            </div>
+            <div class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fas fa-cog me-2"></i>Settings
+                </a>
+                <div class="dropdown-menu bg-transparent border-0">
+                    <a href="#" class="dropdown-item">General Settings</a>
+                    <a href="#" class="dropdown-item">User Management</a>
+                    <a href="#" class="dropdown-item">Email Templates</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+<!-- Sidebar End -->
+
+<!-- Content Start -->
+<div class="content">
+    <!-- Navbar Start -->
+    <nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
+        <a href="{% url 'users:admin_dashboard' %}" class="navbar-brand d-flex d-lg-none me-4">
+            <h2 class="text-primary mb-0"><i class="fas fa-snowflake"></i></h2>
+        </a>
+        <a href="#" class="sidebar-toggler flex-shrink-0">
+            <i class="fa fa-bars"></i>
+        </a>
+        <form class="d-none d-md-flex ms-4" method="GET">
+            <input class="form-control border-0" type="search" name="search" value="{{ current_filters.search }}" placeholder="Search bookings, customers...">
+        </form>
+        <div class="navbar-nav align-items-center ms-auto">
+            <div class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fa fa-bell me-lg-2"></i>
+                    <span class="d-none d-lg-inline-flex">Notifications</span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                    <a href="#" class="dropdown-item">
+                        <h6 class="fw-normal mb-0">New booking request</h6>
+                        <small>15 minutes ago</small>
+                    </a>
+                    <hr class="dropdown-divider">
+                    <a href="#" class="dropdown-item text-center">See all notifications</a>
+                </div>
+            </div>
+            <div class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                    <img class="rounded-circle me-lg-2" src="{% static 'admin-img/user.jpg' %}" alt="" style="width: 40px; height: 40px;">
+                    <span class="d-none d-lg-inline-flex">{{ user.get_full_name|default:user.email }}</span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                    <a href="#" class="dropdown-item">My Profile</a>
+                    <a href="#" class="dropdown-item">Settings</a>
+                    <a href="{% url 'users:admin_logout' %}" class="dropdown-item">Log Out</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- Navbar End -->
+
+    <!-- Main Content -->
+    <div class="container-fluid pt-4 px-4">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">Booking Management</h1>
+            <div>
+                <span class="badge bg-primary">{{ total_bookings }} Total Bookings</span>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-section">
+            <form method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All Statuses</option>
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if current_filters.status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Priority</label>
+                    <select name="priority" class="form-select">
+                        <option value="">All Priorities</option>
+                        {% for value, label in priority_choices %}
+                        <option value="{{ value }}" {% if current_filters.priority == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Date From</label>
+                    <input type="date" name="date_from" class="form-control" value="{{ current_filters.date_from }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Date To</label>
+                    <input type="date" name="date_to" class="form-control" value="{{ current_filters.date_to }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">Filter</button>
+                    <a href="{% url 'users:admin_bookings_list' %}" class="btn btn-outline-secondary">Clear</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Bookings List -->
+        {% if bookings %}
+        <div class="row">
+            {% for booking in bookings %}
+            <div class="col-12">
+                <div class="booking-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center mb-2">
+                                <h5 class="mb-0 me-3">{{ booking.contact_name }}</h5>
+                                <span class="status-badge status-{{ booking.status }}">{{ booking.get_status_display }}</span>
+                                <span class="priority-badge priority-{{ booking.priority }} ms-2">{{ booking.get_priority_display }}</span>
+                            </div>
+                            
+                            <p class="text-muted mb-2">
+                                <strong>Service:</strong> {{ booking.service.name }} |
+                                <strong>Booking ID:</strong> {{ booking.booking_id.hex|slice:":8"|upper }}
+                            </p>
+                            
+                            <div class="booking-meta">
+                                <span><i class="fas fa-calendar me-1"></i>{{ booking.preferred_date|date:"M d, Y" }}</span>
+                                <span><i class="fas fa-clock me-1"></i>{{ booking.get_preferred_time_slot_display }}</span>
+                                <span><i class="fas fa-envelope me-1"></i>{{ booking.contact_email }}</span>
+                                <span><i class="fas fa-phone me-1"></i>{{ booking.contact_phone }}</span>
+                                {% if booking.assigned_technician %}
+                                <span><i class="fas fa-user-tie me-1"></i>{{ booking.assigned_technician.get_full_name|default:booking.assigned_technician.username }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            {% if booking.message %}
+                            <p class="text-muted mt-2 mb-0">
+                                <small><strong>Message:</strong> {{ booking.message|truncatewords:20 }}</small>
+                            </p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="booking-actions">
+                            <a href="{% url 'users:admin_booking_detail' booking.booking_id %}" class="btn-sm btn-primary-sm">
+                                <i class="fas fa-eye me-1"></i>View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if bookings.has_other_pages %}
+        <nav aria-label="Bookings pagination" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if bookings.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% for key, value in current_filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ bookings.previous_page_number }}{% for key, value in current_filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Previous</a>
+                    </li>
+                {% endif %}
+                
+                <li class="page-item active">
+                    <span class="page-link">Page {{ bookings.number }} of {{ bookings.paginator.num_pages }}</span>
+                </li>
+                
+                {% if bookings.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ bookings.next_page_number }}{% for key, value in current_filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ bookings.paginator.num_pages }}{% for key, value in current_filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Last</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted">No Bookings Found</h4>
+            <p class="text-muted">No bookings match your current filters.</p>
+            <a href="{% url 'users:admin_bookings_list' %}" class="btn btn-primary">Clear Filters</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Footer Start -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="bg-light rounded-top p-4">
+            <div class="row">
+                <div class="col-12 col-sm-6 text-center text-sm-start">
+                    &copy; <a href="{% url 'core:home' %}">Global Cool-Light E.A LTD</a>, All Right Reserved.
+                </div>
+                <div class="col-12 col-sm-6 text-center text-sm-end">
+                    Designed By <a href="#">Global Cool-Light Team</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+</div>
+<!-- Content End -->
+{% endblock %}

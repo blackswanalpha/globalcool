@@ -1,0 +1,354 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}Security Settings - Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+.settings-nav {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+.settings-nav .nav-link {
+    color: #6c757d;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    margin: 0 0.25rem;
+}
+
+.settings-nav .nav-link.active {
+    background: #004AAD;
+    color: white;
+}
+
+.security-section {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.security-section-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem 1.5rem;
+    border-radius: 8px 8px 0 0;
+}
+
+.security-section-body {
+    padding: 1.5rem;
+}
+
+.security-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.security-info {
+    flex: 1;
+}
+
+.security-control {
+    margin-left: 1rem;
+}
+
+.security-status {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.security-status.enabled {
+    background: #d4edda;
+    color: #155724;
+}
+
+.security-status.disabled {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.security-warning {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.security-danger {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Include Enhanced Sidebar -->
+{% include 'components/admin_sidebar.html' %}
+
+<!-- Content Start -->
+<div class="content">
+    <!-- Include Enhanced Header -->
+    {% include 'components/admin_header.html' %}
+
+    <!-- Page Header -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h1 class="h3 mb-0 text-gray-800">
+                            <i class="fas fa-shield-alt me-2 text-primary"></i>Security Settings
+                        </h1>
+                        <p class="text-muted mb-0">Configure security policies and access controls</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Navigation -->
+    <div class="container-fluid px-4">
+        <div class="settings-nav">
+            <ul class="nav nav-pills">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:admin_settings_general' %}">
+                        <i class="fas fa-building me-2"></i>General Settings
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:admin_account_settings' %}">
+                        <i class="fas fa-user me-2"></i>Account Settings
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:admin_preferences' %}">
+                        <i class="fas fa-sliders-h me-2"></i>Preferences
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:admin_user_management' %}">
+                        <i class="fas fa-users-cog me-2"></i>User Management
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:admin_email_templates' %}">
+                        <i class="fas fa-envelope me-2"></i>Email Templates
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'users:admin_security_settings' %}">
+                        <i class="fas fa-shield-alt me-2"></i>Security
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Security Settings Content -->
+    <div class="container-fluid px-4 pb-4">
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Authentication Security -->
+            <div class="security-section">
+                <div class="security-section-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-key me-2 text-primary"></i>Authentication Security
+                    </h5>
+                </div>
+                <div class="security-section-body">
+                    <div class="security-item">
+                        <div class="security-info">
+                            <h6 class="mb-1">Two-Factor Authentication</h6>
+                            <p class="text-muted mb-0">Require 2FA for all admin accounts</p>
+                        </div>
+                        <div class="security-control">
+                            <div class="form-check form-switch">
+                                {{ form.require_2fa }}
+                                <label class="form-check-label" for="{{ form.require_2fa.id_for_label }}"></label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="security-item">
+                        <div class="security-info">
+                            <h6 class="mb-1">Strong Password Policy</h6>
+                            <p class="text-muted mb-0">Enforce complex password requirements</p>
+                        </div>
+                        <div class="security-control">
+                            <div class="form-check form-switch">
+                                {{ form.strong_passwords }}
+                                <label class="form-check-label" for="{{ form.strong_passwords.id_for_label }}"></label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Session Timeout (minutes)</label>
+                                {{ form.session_timeout }}
+                                <div class="form-text">Auto-logout after inactivity</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Max Login Attempts</label>
+                                {{ form.max_login_attempts }}
+                                <div class="form-text">Lock account after failed attempts</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Access Control -->
+            <div class="security-section">
+                <div class="security-section-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lock me-2 text-primary"></i>Access Control
+                    </h5>
+                </div>
+                <div class="security-section-body">
+                    <div class="security-item">
+                        <div class="security-info">
+                            <h6 class="mb-1">IP Whitelist</h6>
+                            <p class="text-muted mb-0">Restrict admin access to specific IP addresses</p>
+                        </div>
+                        <div class="security-control">
+                            <div class="form-check form-switch">
+                                {{ form.ip_whitelist_enabled }}
+                                <label class="form-check-label" for="{{ form.ip_whitelist_enabled.id_for_label }}"></label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Allowed IP Addresses</label>
+                        {{ form.allowed_ips }}
+                        <div class="form-text">Enter IP addresses separated by commas (e.g., 192.168.1.1, 10.0.0.1)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Protection -->
+            <div class="security-section">
+                <div class="security-section-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-database me-2 text-primary"></i>Data Protection
+                    </h5>
+                </div>
+                <div class="security-section-body">
+                    <div class="security-item">
+                        <div class="security-info">
+                            <h6 class="mb-1">Audit Logging</h6>
+                            <p class="text-muted mb-0">Log all admin actions and changes</p>
+                        </div>
+                        <div class="security-control">
+                            <div class="form-check form-switch">
+                                {{ form.audit_logging }}
+                                <label class="form-check-label" for="{{ form.audit_logging.id_for_label }}"></label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="security-item">
+                        <div class="security-info">
+                            <h6 class="mb-1">Data Encryption</h6>
+                            <p class="text-muted mb-0">Encrypt sensitive data at rest</p>
+                        </div>
+                        <div class="security-control">
+                            <div class="form-check form-switch">
+                                {{ form.data_encryption }}
+                                <label class="form-check-label" for="{{ form.data_encryption.id_for_label }}"></label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Backup Frequency</label>
+                                {{ form.backup_frequency }}
+                                <div class="form-text">Automatic database backups</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Backup Retention (days)</label>
+                                {{ form.backup_retention }}
+                                <div class="form-text">How long to keep backups</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Alerts -->
+            <div class="security-section">
+                <div class="security-section-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2 text-primary"></i>Security Alerts
+                    </h5>
+                </div>
+                <div class="security-section-body">
+                    <div class="security-warning">
+                        <h6><i class="fas fa-exclamation-triangle me-2"></i>Security Recommendations:</h6>
+                        <ul class="mb-0">
+                            <li>Enable two-factor authentication for all admin accounts</li>
+                            <li>Use strong, unique passwords for all accounts</li>
+                            <li>Regularly review and update user permissions</li>
+                            <li>Monitor login attempts and suspicious activities</li>
+                            <li>Keep the system updated with latest security patches</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="security-item">
+                        <div class="security-info">
+                            <h6 class="mb-1">Email Security Alerts</h6>
+                            <p class="text-muted mb-0">Send email notifications for security events</p>
+                        </div>
+                        <div class="security-control">
+                            <div class="form-check form-switch">
+                                {{ form.email_security_alerts }}
+                                <label class="form-check-label" for="{{ form.email_security_alerts.id_for_label }}"></label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Security Alert Recipients</label>
+                        {{ form.security_alert_emails }}
+                        <div class="form-text">Email addresses to receive security alerts (comma-separated)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-secondary me-2">
+                    <i class="fas fa-undo me-2"></i>Reset to Defaults
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save Security Settings
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

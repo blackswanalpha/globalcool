@@ -1,0 +1,36 @@
+<!-- Admin Breadcrumb Component -->
+<!-- Usage: {% include 'components/admin_breadcrumb.html' with breadcrumbs=breadcrumb_list %} -->
+
+<nav class="breadcrumb-nav d-none d-lg-flex" aria-label="breadcrumb">
+    <div class="breadcrumb-item">
+        <i class="fas fa-home me-1"></i>
+        <a href="{% url 'users:admin_dashboard' %}">Dashboard</a>
+    </div>
+    
+    {% for breadcrumb in breadcrumbs %}
+        <span class="breadcrumb-separator">/</span>
+        <div class="breadcrumb-item {% if forloop.last %}active{% endif %}">
+            {% if breadcrumb.icon %}
+                <i class="{{ breadcrumb.icon }} me-1"></i>
+            {% endif %}
+            {% if breadcrumb.url and not forloop.last %}
+                <a href="{{ breadcrumb.url }}">{{ breadcrumb.title }}</a>
+            {% else %}
+                {{ breadcrumb.title }}
+            {% endif %}
+        </div>
+    {% endfor %}
+</nav>
+
+<!-- Alternative simple breadcrumb for when no breadcrumbs list is provided -->
+{% if not breadcrumbs %}
+<nav class="breadcrumb-nav d-none d-lg-flex" aria-label="breadcrumb">
+    <div class="breadcrumb-item">
+        <i class="fas fa-home me-1"></i>
+        <a href="{% url 'users:admin_dashboard' %}">Dashboard</a>
+    </div>
+    {% block breadcrumb_items %}
+    <!-- Override this block in templates to add custom breadcrumb items -->
+    {% endblock %}
+</nav>
+{% endif %}

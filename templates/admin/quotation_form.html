@@ -1,0 +1,399 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Global Cool-Light E.A LTD{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .form-header {
+        background: linear-gradient(135deg, #004AAD 0%, #00AEEF 100%);
+        color: white;
+        padding: 2rem;
+        margin-bottom: 0;
+    }
+    
+    .form-section {
+        padding: 2rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .form-section:last-child {
+        border-bottom: none;
+    }
+    
+    .section-title {
+        color: #004AAD;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #00AEEF;
+        display: inline-block;
+    }
+    
+    .line-items-container {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .line-item {
+        background: white;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid #00AEEF;
+    }
+    
+    .calculation-summary {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+    }
+    
+    .total-amount {
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: #004AAD;
+    }
+    
+    .btn-add-item {
+        background: #00AEEF;
+        border-color: #00AEEF;
+        color: white;
+    }
+    
+    .btn-add-item:hover {
+        background: #0099d4;
+        border-color: #0099d4;
+        color: white;
+    }
+    
+    .btn-remove-item {
+        background: #dc3545;
+        border-color: #dc3545;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Include Enhanced Sidebar -->
+{% include 'components/admin_sidebar.html' %}
+
+<!-- Content Start -->
+<div class="content">
+    <!-- Include Enhanced Header -->
+    {% include 'components/admin_header.html' %}
+
+    <!-- Form Container Start -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="row justify-content-center">
+            <div class="col-12 col-xl-10">
+                <div class="form-container">
+                    <!-- Header -->
+                    <div class="form-header">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h1>
+                                    <i class="fas fa-file-invoice-dollar me-3"></i>{{ title }}
+                                </h1>
+                                <p class="mb-0">Create and manage quotations with detailed line items and calculations</p>
+                            </div>
+                            <a href="{% url 'users:admin_quotations_list' %}" class="btn btn-light btn-lg">
+                                <i class="fas fa-arrow-left me-2"></i>Back
+                            </a>
+                        </div>
+                    </div>
+
+                    <form method="post" id="quotationForm">
+                        {% csrf_token %}
+                        
+                        <!-- Basic Information -->
+                        <div class="form-section">
+                            <h3 class="section-title">Basic Information</h3>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.client.id_for_label }}" class="form-label">Client *</label>
+                                        {{ form.client }}
+                                        {% if form.client.errors %}
+                                            <div class="text-danger small">{{ form.client.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="{{ form.inquiry.id_for_label }}" class="form-label">Related Inquiry</label>
+                                        {{ form.inquiry }}
+                                        {% if form.inquiry.errors %}
+                                            <div class="text-danger small">{{ form.inquiry.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.title.id_for_label }}" class="form-label">Title *</label>
+                                        {{ form.title }}
+                                        {% if form.title.errors %}
+                                            <div class="text-danger small">{{ form.title.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="{{ form.valid_until.id_for_label }}" class="form-label">Valid Until *</label>
+                                        {{ form.valid_until }}
+                                        {% if form.valid_until.errors %}
+                                            <div class="text-danger small">{{ form.valid_until.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                    <div class="text-danger small">{{ form.description.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Line Items -->
+                        <div class="form-section">
+                            <h3 class="section-title">Line Items</h3>
+                            <div class="line-items-container">
+                                <div id="lineItemsContainer">
+                                    <!-- Line items will be dynamically added here -->
+                                </div>
+                                <button type="button" class="btn btn-add-item" onclick="addLineItem()">
+                                    <i class="fas fa-plus me-2"></i>Add Line Item
+                                </button>
+                            </div>
+                            {{ form.items }}
+                        </div>
+
+                        <!-- Financial Details -->
+                        <div class="form-section">
+                            <h3 class="section-title">Financial Details</h3>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="{{ form.subtotal.id_for_label }}" class="form-label">Subtotal</label>
+                                        {{ form.subtotal }}
+                                        {% if form.subtotal.errors %}
+                                            <div class="text-danger small">{{ form.subtotal.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="{{ form.tax_rate.id_for_label }}" class="form-label">Tax Rate (%)</label>
+                                        {{ form.tax_rate }}
+                                        {% if form.tax_rate.errors %}
+                                            <div class="text-danger small">{{ form.tax_rate.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="{{ form.discount_amount.id_for_label }}" class="form-label">Discount Amount</label>
+                                        {{ form.discount_amount }}
+                                        {% if form.discount_amount.errors %}
+                                            <div class="text-danger small">{{ form.discount_amount.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="calculation-summary">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <h5>Calculation Summary</h5>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Subtotal:</span>
+                                            <span id="displaySubtotal">KSh 0.00</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Tax:</span>
+                                            <span id="displayTax">KSh 0.00</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Discount:</span>
+                                            <span id="displayDiscount">KSh 0.00</span>
+                                        </div>
+                                        <hr>
+                                        <div class="d-flex justify-content-between total-amount">
+                                            <span>Total:</span>
+                                            <span id="displayTotal">KSh 0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Terms and Notes -->
+                        <div class="form-section">
+                            <h3 class="section-title">Terms and Notes</h3>
+                            <div class="mb-3">
+                                <label for="{{ form.terms_and_conditions.id_for_label }}" class="form-label">Terms and Conditions</label>
+                                {{ form.terms_and_conditions }}
+                                {% if form.terms_and_conditions.errors %}
+                                    <div class="text-danger small">{{ form.terms_and_conditions.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ form.notes.id_for_label }}" class="form-label">Internal Notes</label>
+                                {{ form.notes }}
+                                {% if form.notes.errors %}
+                                    <div class="text-danger small">{{ form.notes.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="form-section">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{% url 'users:admin_quotations_list' %}" class="btn btn-secondary">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </a>
+                                <div>
+                                    <button type="submit" name="action" value="save_draft" class="btn btn-outline-primary me-2">
+                                        <i class="fas fa-save me-2"></i>Save as Draft
+                                    </button>
+                                    <button type="submit" name="action" value="save" class="btn btn-primary">
+                                        <i class="fas fa-check me-2"></i>{{ action }} Quotation
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Content End -->
+
+<script>
+let lineItemCounter = 0;
+
+function addLineItem(description = '', quantity = 1, unitPrice = 0) {
+    const container = document.getElementById('lineItemsContainer');
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'line-item';
+    itemDiv.id = `lineItem_${lineItemCounter}`;
+    
+    itemDiv.innerHTML = `
+        <div class="row align-items-end">
+            <div class="col-md-5">
+                <label class="form-label">Description</label>
+                <input type="text" class="form-control" name="item_description_${lineItemCounter}" 
+                       value="${description}" placeholder="Item description" onchange="updateLineItems()">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Quantity</label>
+                <input type="number" class="form-control" name="item_quantity_${lineItemCounter}" 
+                       value="${quantity}" min="1" step="1" onchange="updateLineItems()">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Unit Price</label>
+                <input type="number" class="form-control" name="item_unit_price_${lineItemCounter}" 
+                       value="${unitPrice}" min="0" step="0.01" onchange="updateLineItems()">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Actions</label>
+                <div>
+                    <button type="button" class="btn btn-remove-item" onclick="removeLineItem(${lineItemCounter})">
+                        <i class="fas fa-trash"></i> Remove
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.appendChild(itemDiv);
+    lineItemCounter++;
+    updateLineItems();
+}
+
+function removeLineItem(itemId) {
+    const item = document.getElementById(`lineItem_${itemId}`);
+    if (item) {
+        item.remove();
+        updateLineItems();
+    }
+}
+
+function updateLineItems() {
+    const items = [];
+    let subtotal = 0;
+    
+    // Collect all line items
+    const lineItems = document.querySelectorAll('.line-item');
+    lineItems.forEach((item, index) => {
+        const description = item.querySelector(`input[name^="item_description_"]`).value;
+        const quantity = parseFloat(item.querySelector(`input[name^="item_quantity_"]`).value) || 0;
+        const unitPrice = parseFloat(item.querySelector(`input[name^="item_unit_price_"]`).value) || 0;
+        const total = quantity * unitPrice;
+        
+        if (description && quantity > 0 && unitPrice > 0) {
+            items.push({
+                description: description,
+                quantity: quantity,
+                unit_price: unitPrice,
+                total: total
+            });
+            subtotal += total;
+        }
+    });
+    
+    // Update hidden field
+    document.getElementById('{{ form.items.id_for_label }}').value = JSON.stringify(items);
+    
+    // Update subtotal field
+    document.getElementById('{{ form.subtotal.id_for_label }}').value = subtotal.toFixed(2);
+    
+    // Update calculations
+    updateCalculations();
+}
+
+function updateCalculations() {
+    const subtotal = parseFloat(document.getElementById('{{ form.subtotal.id_for_label }}').value) || 0;
+    const taxRate = parseFloat(document.getElementById('{{ form.tax_rate.id_for_label }}').value) || 0;
+    const discount = parseFloat(document.getElementById('{{ form.discount_amount.id_for_label }}').value) || 0;
+    
+    const taxAmount = (subtotal * taxRate) / 100;
+    const total = subtotal + taxAmount - discount;
+    
+    // Update display
+    document.getElementById('displaySubtotal').textContent = `KSh ${subtotal.toFixed(2)}`;
+    document.getElementById('displayTax').textContent = `KSh ${taxAmount.toFixed(2)}`;
+    document.getElementById('displayDiscount').textContent = `KSh ${discount.toFixed(2)}`;
+    document.getElementById('displayTotal').textContent = `KSh ${total.toFixed(2)}`;
+}
+
+// Initialize form
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners for tax rate and discount changes
+    document.getElementById('{{ form.tax_rate.id_for_label }}').addEventListener('change', updateCalculations);
+    document.getElementById('{{ form.discount_amount.id_for_label }}').addEventListener('change', updateCalculations);
+    
+    // Load existing items if editing
+    {% if quotation.items %}
+        {% for item in quotation.items %}
+            addLineItem('{{ item.description|escapejs }}', {{ item.quantity }}, {{ item.unit_price }});
+        {% endfor %}
+    {% else %}
+        // Add one empty line item for new quotations
+        addLineItem();
+    {% endif %}
+});
+</script>
+{% endblock %}

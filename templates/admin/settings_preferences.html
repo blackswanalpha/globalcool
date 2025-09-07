@@ -1,0 +1,337 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+.settings-nav {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+.settings-nav .nav-link {
+    color: #6c757d;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    margin: 0 0.25rem;
+}
+
+.settings-nav .nav-link.active {
+    background: #004AAD;
+    color: white;
+}
+
+.settings-section {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.settings-section-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem 1.5rem;
+    border-radius: 8px 8px 0 0;
+}
+
+.settings-section-body {
+    padding: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.form-check {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.form-check-label {
+    font-weight: 500;
+}
+
+.form-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+}
+
+.preference-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.preference-info {
+    flex: 1;
+}
+
+.preference-control {
+    margin-left: 1rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Include Enhanced Sidebar -->
+{% include 'components/admin_sidebar.html' %}
+
+<!-- Content Start -->
+<div class="content">
+    <!-- Include Enhanced Header -->
+    {% include 'components/admin_header.html' %}
+
+    <!-- Page Header -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h1 class="h3 mb-0 text-gray-800">
+                            <i class="fas fa-sliders-h me-2 text-primary"></i>{{ title }}
+                        </h1>
+                        <p class="text-muted mb-0">Customize your dashboard and notification preferences</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Navigation -->
+    <div class="container-fluid px-4">
+        <div class="settings-nav">
+            <ul class="nav nav-pills">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:admin_settings_general' %}">
+                        <i class="fas fa-building me-2"></i>General Settings
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:admin_account_settings' %}">
+                        <i class="fas fa-user me-2"></i>Account Settings
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'users:admin_preferences' %}">
+                        <i class="fas fa-sliders-h me-2"></i>Preferences
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:admin_user_management' %}">
+                        <i class="fas fa-users-cog me-2"></i>User Management
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:admin_email_templates' %}">
+                        <i class="fas fa-envelope me-2"></i>Email Templates
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:admin_security_settings' %}">
+                        <i class="fas fa-shield-alt me-2"></i>Security
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Preferences Content -->
+    <div class="container-fluid px-4 pb-4">
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Notification Preferences -->
+            <div class="settings-section">
+                <div class="settings-section-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bell me-2 text-primary"></i>Notification Preferences
+                    </h5>
+                </div>
+                <div class="settings-section-body">
+                    <div class="preference-item">
+                        <div class="preference-info">
+                            <h6 class="mb-1">Email Notifications</h6>
+                            <p class="text-muted mb-0">Receive email notifications for bookings, quotations, and system updates</p>
+                        </div>
+                        <div class="preference-control">
+                            <div class="form-check form-switch">
+                                {{ form.email_notifications }}
+                                <label class="form-check-label" for="{{ form.email_notifications.id_for_label }}"></label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="preference-item">
+                        <div class="preference-info">
+                            <h6 class="mb-1">SMS Notifications</h6>
+                            <p class="text-muted mb-0">Receive SMS notifications for urgent updates and reminders</p>
+                        </div>
+                        <div class="preference-control">
+                            <div class="form-check form-switch">
+                                {{ form.sms_notifications }}
+                                <label class="form-check-label" for="{{ form.sms_notifications.id_for_label }}"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Role & Permissions -->
+            <div class="settings-section">
+                <div class="settings-section-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-tag me-2 text-primary"></i>Role & Permissions
+                    </h5>
+                </div>
+                <div class="settings-section-body">
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.role.id_for_label }}">Current Role</label>
+                        {{ form.role }}
+                        {% if form.role.errors %}
+                            <div class="text-danger small">{{ form.role.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">
+                            Your role determines what features and data you can access in the admin portal.
+                        </div>
+                    </div>
+                    
+                    <!-- Role Information -->
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle me-2"></i>Role Descriptions:</h6>
+                        <ul class="mb-0">
+                            <li><strong>Administrator:</strong> Full access to all features and settings</li>
+                            <li><strong>Manager:</strong> Access to bookings, quotations, and reports</li>
+                            <li><strong>Technician:</strong> Access to assigned bookings and service records</li>
+                            <li><strong>Sales Representative:</strong> Access to quotations and customer management</li>
+                            <li><strong>Customer Support:</strong> Access to customer inquiries and basic features</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Preferences -->
+            <div class="settings-section">
+                <div class="settings-section-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-tachometer-alt me-2 text-primary"></i>Dashboard Preferences
+                    </h5>
+                </div>
+                <div class="settings-section-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Default Dashboard View</label>
+                                <select class="form-select" name="default_dashboard_view">
+                                    <option value="overview">Overview Dashboard</option>
+                                    <option value="bookings">Bookings Dashboard</option>
+                                    <option value="analytics">Analytics Dashboard</option>
+                                </select>
+                                <div class="form-text">Choose which dashboard to show when you log in</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Items Per Page</label>
+                                <select class="form-select" name="items_per_page">
+                                    <option value="10">10 items</option>
+                                    <option value="20" selected>20 items</option>
+                                    <option value="50">50 items</option>
+                                    <option value="100">100 items</option>
+                                </select>
+                                <div class="form-text">Number of items to display in lists and tables</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Date Format</label>
+                                <select class="form-select" name="date_format">
+                                    <option value="d/m/Y">DD/MM/YYYY</option>
+                                    <option value="m/d/Y">MM/DD/YYYY</option>
+                                    <option value="Y-m-d" selected>YYYY-MM-DD</option>
+                                    <option value="d M Y">DD Mon YYYY</option>
+                                </select>
+                                <div class="form-text">How dates are displayed throughout the system</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Time Format</label>
+                                <select class="form-select" name="time_format">
+                                    <option value="12" selected>12-hour (AM/PM)</option>
+                                    <option value="24">24-hour</option>
+                                </select>
+                                <div class="form-text">How times are displayed throughout the system</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Theme Preferences -->
+            <div class="settings-section">
+                <div class="settings-section-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-palette me-2 text-primary"></i>Theme Preferences
+                    </h5>
+                </div>
+                <div class="settings-section-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Color Scheme</label>
+                                <select class="form-select" name="color_scheme">
+                                    <option value="default" selected>Default (Blue)</option>
+                                    <option value="dark">Dark Mode</option>
+                                    <option value="light">Light Mode</option>
+                                </select>
+                                <div class="form-text">Choose your preferred color scheme</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Sidebar Style</label>
+                                <select class="form-select" name="sidebar_style">
+                                    <option value="expanded" selected>Always Expanded</option>
+                                    <option value="collapsed">Always Collapsed</option>
+                                    <option value="auto">Auto (Remember State)</option>
+                                </select>
+                                <div class="form-text">How the sidebar should behave</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-secondary me-2">
+                    <i class="fas fa-undo me-2"></i>Reset to Defaults
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save Preferences
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

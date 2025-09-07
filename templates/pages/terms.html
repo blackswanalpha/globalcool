@@ -1,0 +1,29 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Terms of Service - {{ site_settings.company_name }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <section class="section">
+        <div class="container">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-4xl font-heading font-bold text-gray-900 mb-8">Terms of Service</h1>
+                <div class="prose prose-lg">
+                    <p>Last updated: {{ current_year }}</p>
+                    <p>These Terms of Service govern your use of our website and services provided by Global Cool-Light E.A LTD.</p>
+                    
+                    <h2>Acceptance of Terms</h2>
+                    <p>By accessing and using our services, you accept and agree to be bound by the terms and provision of this agreement.</p>
+                    
+                    <h2>Services</h2>
+                    <p>We provide professional HVAC installation, maintenance, and repair services in Kenya.</p>
+                    
+                    <h2>Contact Information</h2>
+                    <p>For questions about these Terms of Service, please contact us at info@globalcool-light.com</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,222 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Our Products - {{ site_settings.company_name }}{% endblock %}
+{% block description %}Premium HVAC products and equipment in Kenya. Quality air conditioning units, parts, and accessories for homes and businesses.{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-20">
+        <div class="container">
+            <div class="max-w-3xl mx-auto text-center">
+                <h1 class="text-4xl md:text-5xl font-heading font-bold mb-6">Our HVAC Products</h1>
+                <p class="text-xl text-gray-200">Premium air conditioning equipment and accessories for your comfort needs.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Grid -->
+    <section class="section">
+        <div class="container">
+            <!-- Search and Filter -->
+            <div class="mb-8">
+                <div class="flex flex-col md:flex-row gap-4 justify-between items-center">
+                    <!-- Search Form -->
+                    <form method="GET" class="flex-1 max-w-md">
+                        <div class="relative">
+                            <input type="text" name="search" value="{{ search_query }}"
+                                   placeholder="Search products..."
+                                   class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                        </div>
+                        {% if current_category %}
+                            <input type="hidden" name="category" value="{{ current_category }}">
+                        {% endif %}
+                    </form>
+
+                    <!-- Category Filter -->
+                    <div class="flex flex-wrap gap-2">
+                        <a href="{% url 'services:products' %}"
+                           class="px-4 py-2 rounded-full text-sm font-medium transition-colors
+                                  {% if not current_category %}bg-primary-600 text-white{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %}">
+                            All Products
+                        </a>
+                        {% for category in categories %}
+                        <a href="{% url 'services:products' %}?category={{ category.slug }}"
+                           class="px-4 py-2 rounded-full text-sm font-medium transition-colors
+                                  {% if current_category == category.slug %}bg-primary-600 text-white{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %}">
+                            {{ category.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            {% if products %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for product in products %}
+                <div class="card-hover">
+                    <div class="card-body">
+                        <!-- Product Image -->
+                        {% if product.images.first %}
+                        <div class="mb-6">
+                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" 
+                                 class="w-full h-48 object-cover rounded-lg">
+                        </div>
+                        {% else %}
+                        <div class="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center mb-6">
+                            {% if product.category.icon %}
+                                <i class="{{ product.category.icon }} text-white text-2xl"></i>
+                            {% else %}
+                                <i class="fas fa-box text-white text-2xl"></i>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Featured Badge -->
+                        {% if product.is_featured %}
+                        <div class="absolute top-4 right-4">
+                            <span class="bg-accent-500 text-gray-900 px-2 py-1 rounded-full text-xs font-semibold">
+                                Featured
+                            </span>
+                        </div>
+                        {% endif %}
+
+                        <h3 class="text-xl font-heading font-semibold text-gray-900 mb-4">{{ product.name }}</h3>
+                        <p class="text-gray-600 mb-4">{{ product.summary }}</p>
+
+                        <!-- Price -->
+                        <div class="mb-4">
+                            <span class="text-lg font-semibold text-primary-600">{{ product.price_display }}</span>
+                            {% if product.is_on_sale %}
+                                <span class="text-sm text-gray-500 line-through ml-2">KSh {{ product.price|floatformat:0 }}</span>
+                                <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs ml-2">Sale</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Stock Status -->
+                        <div class="mb-4">
+                            {% if product.is_in_stock %}
+                                <span class="text-green-600 text-sm"><i class="fas fa-check-circle mr-1"></i>In Stock</span>
+                            {% else %}
+                                <span class="text-red-600 text-sm"><i class="fas fa-times-circle mr-1"></i>Out of Stock</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Features -->
+                        {% if product.features_list %}
+                        <ul class="text-sm text-gray-600 space-y-1 mb-6">
+                            {% for feature in product.features_list|slice:":4" %}
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2 text-xs"></i>
+                                {{ feature }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+
+                        <!-- Action Buttons -->
+                        <div class="flex gap-2 mt-auto">
+                            <a href="{% url 'services:product_detail' product.slug %}"
+                               class="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-center font-medium hover:bg-gray-200 transition-colors">
+                                View Details
+                            </a>
+                            {% if product.is_in_stock %}
+                            <a href="{% url 'leads:inquiry_create' %}"
+                               class="flex-1 btn-primary text-center">
+                                Inquire
+                            </a>
+                            {% else %}
+                            <button class="flex-1 bg-gray-300 text-gray-500 px-4 py-2 rounded-lg text-center font-medium cursor-not-allowed">
+                                Out of Stock
+                            </button>
+                            {% endif %}
+                        </div>
+
+                        <!-- Product Stats -->
+                        <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200 text-xs text-gray-500">
+                            <span><i class="fas fa-eye mr-1"></i>{{ product.view_count }} views</span>
+                            <span class="text-{{ product.category.name|lower }}">{{ product.category.name }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="flex justify-center mt-12">
+                <nav class="flex items-center space-x-2">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}"
+                           class="px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <span class="px-3 py-2 bg-primary-600 text-white rounded-md">{{ num }}</span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}"
+                               class="px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}"
+                           class="px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    {% endif %}
+                </nav>
+            </div>
+            {% endif %}
+            {% else %}
+            <div class="text-center py-16">
+                <div class="max-w-md mx-auto">
+                    <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-box text-gray-400 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">No Products Found</h3>
+                    <p class="text-gray-600 mb-6">
+                        {% if search_query %}
+                            No products match your search "{{ search_query }}".
+                        {% elif current_category %}
+                            No products found in this category.
+                        {% else %}
+                            No products are currently available.
+                        {% endif %}
+                    </p>
+                    <a href="{% url 'services:products' %}" class="btn-primary">
+                        View All Products
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- CTA Section -->
+            <div class="text-center mt-16">
+                <div class="bg-primary-50 rounded-2xl p-8">
+                    <h2 class="text-3xl font-heading font-bold text-gray-900 mb-4">Need Help Choosing?</h2>
+                    <p class="text-lg text-gray-600 mb-8">Our experts can help you find the perfect HVAC solution for your needs.</p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="{% url 'leads:inquiry_create' %}" class="btn-primary btn-lg">
+                            <i class="fas fa-file-invoice-dollar mr-2"></i>Get Product Quote
+                        </a>
+                        <a href="{% url 'services:list' %}" class="btn-outline btn-lg">
+                            <i class="fas fa-tools mr-2"></i>View Services
+                        </a>
+                        <a href="{% url 'core:contact' %}" class="btn-outline btn-lg">
+                            <i class="fas fa-phone mr-2"></i>Contact Us
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

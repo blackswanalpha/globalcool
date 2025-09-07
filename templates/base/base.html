@@ -1,0 +1,433 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+    <!-- SEO Meta Tags -->
+    <title>{% block title %}Global Cool-Light E.A LTD - Your Trusted HVAC Partner{% endblock %}</title>
+    <meta name="description" content="{% block description %}Professional HVAC services in Kenya. Installation, maintenance, and repair of air conditioning systems. Your trusted cooling and heating partner.{% endblock %}">
+    <meta name="keywords" content="{% block keywords %}HVAC, air conditioning, cooling, heating, Kenya, Nairobi, installation, maintenance, repair{% endblock %}">
+    <meta name="author" content="Global Cool-Light E.A LTD">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="{% block og_title %}Global Cool-Light E.A LTD - Your Trusted HVAC Partner{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Professional HVAC services in Kenya. Installation, maintenance, and repair of air conditioning systems.{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{% static 'img/og-image.jpg' %}{% endblock %}">
+    <meta property="og:url" content="{% block og_url %}{{ request.build_absolute_uri }}{% endblock %}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Global Cool-Light E.A LTD">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}Global Cool-Light E.A LTD - Your Trusted HVAC Partner{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Professional HVAC services in Kenya. Installation, maintenance, and repair of air conditioning systems.{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{% static 'img/twitter-card.jpg' %}{% endblock %}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.svg' %}">
+    
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- CSS -->
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+    
+    <!-- HTMX -->
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@1.9.12/dist/htmx.min.js"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="antialiased bg-gray-50" {% block body_attrs %}{% endblock %}>
+    <!-- Skip to main content link for accessibility -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary-500 text-white px-4 py-2 rounded-lg z-50">
+        Skip to main content
+    </a>
+    
+    <!-- Header -->
+    {% block header %}
+        {% include 'components/header.html' %}
+    {% endblock %}
+    
+    <!-- Main Content -->
+    <main id="main-content" class="min-h-screen">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    {% block footer %}
+        {% include 'components/footer.html' %}
+    {% endblock %}
+    
+    <!-- Modals -->
+    {% block modals %}{% endblock %}
+    
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2">
+        <!-- Toast messages will be inserted here via HTMX -->
+    </div>
+    
+    <!-- Loading Indicator -->
+    <div id="loading-indicator" class="htmx-indicator fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 flex items-center space-x-3">
+            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500"></div>
+            <span class="text-gray-700">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Chat Widgets -->
+    {% include 'components/chat-widgets.html' %}
+    
+    <!-- JavaScript -->
+    <script>
+        // Wait for libraries to load
+        function checkLibraries() {
+            console.log('HTMX loaded:', typeof htmx !== 'undefined');
+            console.log('Alpine loaded:', typeof Alpine !== 'undefined');
+
+            if (typeof htmx !== 'undefined' && typeof Alpine !== 'undefined') {
+                console.log('All libraries loaded successfully!');
+                initializeApp();
+            } else {
+                console.log('Waiting for libraries to load...');
+                setTimeout(checkLibraries, 100);
+            }
+        }
+
+        // Initialize application
+        function initializeApp() {
+            console.log('Initializing application...');
+
+            // Configure HTMX
+            if (typeof htmx !== 'undefined') {
+                htmx.config.globalViewTransitions = true;
+                htmx.config.scrollBehavior = 'smooth';
+
+                // Add CSRF token to all HTMX requests
+                document.body.addEventListener('htmx:configRequest', function(evt) {
+                    evt.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+                });
+
+                // Handle HTMX errors
+                document.body.addEventListener('htmx:responseError', function(evt) {
+                    console.error('HTMX Error:', evt.detail);
+                    showToast('An error occurred. Please try again.', 'error');
+                });
+            }
+
+            // Initialize Alpine.js components manually if needed
+            if (typeof Alpine !== 'undefined') {
+                console.log('Alpine.js is ready');
+            }
+        }
+
+        // Start checking when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, checking libraries...');
+            checkLibraries();
+        });
+
+        // Debug: Add click event listeners to test clickability
+        document.addEventListener('click', function(e) {
+            console.log('Click detected on:', e.target);
+            console.log('Element classes:', e.target.className);
+            console.log('Element tag:', e.target.tagName);
+
+            // Check if it's a link
+            if (e.target.tagName === 'A' || e.target.closest('a')) {
+                const link = e.target.tagName === 'A' ? e.target : e.target.closest('a');
+                console.log('Link clicked:', link.href);
+                console.log('Link text:', link.textContent);
+            }
+
+            // Check if it's a button
+            if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+                const button = e.target.tagName === 'BUTTON' ? e.target : e.target.closest('button');
+                console.log('Button clicked:', button);
+                console.log('Button text:', button.textContent);
+            }
+        });
+
+        // Add fallback functionality for Alpine.js components
+        function initializeFallbacks() {
+            console.log('Initializing fallback functionality...');
+
+            // Mobile menu toggle fallback
+            const mobileMenuToggle = document.querySelector('button[\\@click*="mobileMenuOpen"]');
+            const mobileMenu = document.querySelector('[x-show="mobileMenuOpen"]');
+
+            if (mobileMenuToggle && mobileMenu) {
+                console.log('Setting up mobile menu fallback');
+                mobileMenuToggle.addEventListener('click', function() {
+                    console.log('Mobile menu toggle clicked');
+                    if (mobileMenu.style.display === 'none' || !mobileMenu.style.display) {
+                        mobileMenu.style.display = 'block';
+                        mobileMenu.classList.remove('opacity-0', 'invisible');
+                        mobileMenu.classList.add('opacity-100', 'visible');
+                    } else {
+                        mobileMenu.style.display = 'none';
+                        mobileMenu.classList.add('opacity-0', 'invisible');
+                        mobileMenu.classList.remove('opacity-100', 'visible');
+                    }
+                });
+            }
+
+            // Services dropdown fallback
+            const servicesButtons = document.querySelectorAll('button[\\@click*="servicesOpen"]');
+            servicesButtons.forEach(button => {
+                console.log('Setting up services dropdown fallback');
+                const dropdown = button.nextElementSibling;
+                if (dropdown) {
+                    button.addEventListener('click', function() {
+                        console.log('Services dropdown clicked');
+                        if (dropdown.style.display === 'none' || !dropdown.style.display) {
+                            dropdown.style.display = 'block';
+                            dropdown.classList.remove('opacity-0', 'invisible');
+                            dropdown.classList.add('opacity-100', 'visible');
+                        } else {
+                            dropdown.style.display = 'none';
+                            dropdown.classList.add('opacity-0', 'invisible');
+                            dropdown.classList.remove('opacity-100', 'visible');
+                        }
+                    });
+                }
+            });
+        }
+
+        // Initialize fallbacks after a delay to ensure Alpine.js has a chance to load
+        setTimeout(function() {
+            if (typeof Alpine === 'undefined') {
+                console.log('Alpine.js not loaded, using fallbacks');
+                initializeFallbacks();
+            }
+        }, 2000);
+
+        // Force initialize fallbacks immediately for testing
+        setTimeout(function() {
+            console.log('Force initializing fallbacks for testing...');
+            initializeFallbacks();
+        }, 1000);
+
+        // Comprehensive debugging function
+        function debugClickability() {
+            console.log('🔍 Starting clickability debug...');
+
+            // Check all links
+            const links = document.querySelectorAll('a');
+            console.log('📎 Found', links.length, 'links');
+            links.forEach((link, index) => {
+                const rect = link.getBoundingClientRect();
+                const computedStyle = window.getComputedStyle(link);
+                console.log(`Link ${index}:`, {
+                    href: link.href,
+                    text: link.textContent.trim().substring(0, 30),
+                    visible: rect.width > 0 && rect.height > 0,
+                    pointerEvents: computedStyle.pointerEvents,
+                    cursor: computedStyle.cursor,
+                    zIndex: computedStyle.zIndex,
+                    position: computedStyle.position
+                });
+            });
+
+            // Check all buttons
+            const buttons = document.querySelectorAll('button');
+            console.log('🔘 Found', buttons.length, 'buttons');
+            buttons.forEach((button, index) => {
+                const rect = button.getBoundingClientRect();
+                const computedStyle = window.getComputedStyle(button);
+                console.log(`Button ${index}:`, {
+                    text: button.textContent.trim().substring(0, 30),
+                    visible: rect.width > 0 && rect.height > 0,
+                    pointerEvents: computedStyle.pointerEvents,
+                    cursor: computedStyle.cursor,
+                    disabled: button.disabled
+                });
+            });
+
+            // Check for overlapping elements
+            const clickableElements = document.querySelectorAll('a, button, [role="button"]');
+            clickableElements.forEach((element, index) => {
+                const rect = element.getBoundingClientRect();
+                if (rect.width > 0 && rect.height > 0) {
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    const elementAtPoint = document.elementFromPoint(centerX, centerY);
+
+                    if (elementAtPoint !== element && !element.contains(elementAtPoint)) {
+                        console.warn(`⚠️ Element ${index} might be blocked by:`, elementAtPoint);
+                    }
+                }
+            });
+        }
+
+        // Run debug after page loads
+        setTimeout(debugClickability, 2000);
+
+        // Manual click handlers as last resort
+        function addManualClickHandlers() {
+            console.log('🔧 Adding manual click handlers...');
+
+            // Force all links to be clickable
+            document.querySelectorAll('a[href]').forEach(link => {
+                if (!link.onclick) {
+                    link.style.cursor = 'pointer';
+                    link.style.pointerEvents = 'auto';
+
+                    link.addEventListener('click', function(e) {
+                        console.log('Manual click handler triggered for:', this.href);
+                        if (this.href && this.href !== '#' && !this.href.includes('javascript:')) {
+                            if (this.target === '_blank') {
+                                window.open(this.href, '_blank');
+                            } else {
+                                window.location.href = this.href;
+                            }
+                        }
+                    });
+                }
+            });
+
+            // Force all buttons to be clickable
+            document.querySelectorAll('button').forEach(button => {
+                button.style.cursor = 'pointer';
+                button.style.pointerEvents = 'auto';
+            });
+        }
+
+        // Add manual handlers after everything else
+        setTimeout(addManualClickHandlers, 3000);
+
+        // Initialize navigation functionality
+        function initializeNavigation() {
+            console.log('🧭 Initializing navigation...');
+
+            // Mobile menu toggle
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menuIcon = document.getElementById('menu-icon');
+            const closeIcon = document.getElementById('close-icon');
+
+            if (mobileMenuToggle && mobileMenu) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    console.log('Mobile menu toggle clicked');
+
+                    if (mobileMenu.classList.contains('hidden')) {
+                        // Show menu
+                        mobileMenu.classList.remove('hidden');
+                        menuIcon.classList.add('hidden');
+                        closeIcon.classList.remove('hidden');
+                    } else {
+                        // Hide menu
+                        mobileMenu.classList.add('hidden');
+                        menuIcon.classList.remove('hidden');
+                        closeIcon.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Mobile services dropdown
+            const servicesToggle = document.getElementById('mobile-services-toggle');
+            const servicesDropdown = document.getElementById('mobile-services-dropdown');
+            const servicesIcon = document.getElementById('mobile-services-icon');
+
+            if (servicesToggle && servicesDropdown) {
+                servicesToggle.addEventListener('click', function() {
+                    console.log('Mobile services toggle clicked');
+
+                    if (servicesDropdown.classList.contains('hidden')) {
+                        // Show dropdown
+                        servicesDropdown.classList.remove('hidden');
+                        servicesIcon.classList.add('rotate-180');
+                    } else {
+                        // Hide dropdown
+                        servicesDropdown.classList.add('hidden');
+                        servicesIcon.classList.remove('rotate-180');
+                    }
+                });
+            }
+        }
+
+        // Initialize navigation immediately
+        document.addEventListener('DOMContentLoaded', initializeNavigation);
+        setTimeout(initializeNavigation, 1000); // Backup initialization
+
+        // Test all navigation links
+        function testNavigationLinks() {
+            console.log('🔗 Testing navigation links...');
+            const links = document.querySelectorAll('nav a[href]');
+            links.forEach((link, index) => {
+                console.log(`Link ${index}: ${link.textContent.trim()} -> ${link.href}`);
+
+                // Add click event listener for testing
+                link.addEventListener('click', function(e) {
+                    console.log(`✅ Navigation link clicked: ${this.textContent.trim()} -> ${this.href}`);
+                });
+            });
+        }
+
+        // Test navigation after page loads
+        setTimeout(testNavigationLinks, 2000);
+
+        // Toast notification function
+        function showToast(message, type = 'info', duration = 5000) {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type} animate-slide-down`;
+            toast.innerHTML = `
+                <div class="flex items-center p-4 bg-white rounded-lg shadow-lg border-l-4 ${getToastBorderColor(type)}">
+                    <div class="flex-shrink-0">
+                        ${getToastIcon(type)}
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-900">${message}</p>
+                    </div>
+                    <div class="ml-auto pl-3">
+                        <button onclick="this.parentElement.parentElement.parentElement.remove()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('toast-container').appendChild(toast);
+            
+            // Auto remove after duration
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, duration);
+        }
+        
+        function getToastBorderColor(type) {
+            const colors = {
+                'success': 'border-green-500',
+                'error': 'border-red-500',
+                'warning': 'border-yellow-500',
+                'info': 'border-blue-500'
+            };
+            return colors[type] || colors.info;
+        }
+        
+        function getToastIcon(type) {
+            const icons = {
+                'success': '<svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>',
+                'error': '<svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>',
+                'warning': '<svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>',
+                'info': '<svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>'
+            };
+            return icons[type] || icons.info;
+        }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

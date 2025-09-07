@@ -1,0 +1,356 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+.settings-nav {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+.settings-nav .nav-link {
+    color: #6c757d;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    margin: 0 0.25rem;
+}
+
+.settings-nav .nav-link.active {
+    background: #004AAD;
+    color: white;
+}
+
+.user-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+    transition: transform 0.2s;
+}
+
+.user-card:hover {
+    transform: translateY(-2px);
+}
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-status {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.user-status.active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.user-status.inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.role-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: #e9ecef;
+    color: #495057;
+}
+
+.search-filters {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stats-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.stats-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #004AAD;
+}
+
+.stats-label {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Include Enhanced Sidebar -->
+{% include 'components/admin_sidebar.html' %}
+
+<!-- Content Start -->
+<div class="content">
+    <!-- Include Enhanced Header -->
+    {% include 'components/admin_header.html' %}
+
+    <!-- Page Header -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h1 class="h3 mb-0 text-gray-800">
+                            <i class="fas fa-users-cog me-2 text-primary"></i>{{ title }}
+                        </h1>
+                        <p class="text-muted mb-0">Manage admin users, roles, and permissions</p>
+                    </div>
+                    <a href="{% url 'users:admin_user_add' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add New Admin User
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Navigation -->
+    <div class="container-fluid px-4">
+        <div class="settings-nav">
+            <ul class="nav nav-pills">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:admin_settings_general' %}">
+                        <i class="fas fa-building me-2"></i>General Settings
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:admin_account_settings' %}">
+                        <i class="fas fa-user me-2"></i>Account Settings
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:admin_preferences' %}">
+                        <i class="fas fa-sliders-h me-2"></i>Preferences
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'users:admin_user_management' %}">
+                        <i class="fas fa-users-cog me-2"></i>User Management
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:admin_email_templates' %}">
+                        <i class="fas fa-envelope me-2"></i>Email Templates
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:admin_security_settings' %}">
+                        <i class="fas fa-shield-alt me-2"></i>Security
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- User Management Content -->
+    <div class="container-fluid px-4 pb-4">
+        <!-- Statistics -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number">{{ total_users }}</div>
+                    <div class="stats-label">Total Admin Users</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number">{{ page_obj.paginator.count }}</div>
+                    <div class="stats-label">Active Users</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number">{{ role_choices|length }}</div>
+                    <div class="stats-label">Available Roles</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number">1</div>
+                    <div class="stats-label">Online Now</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="search-filters">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Search Users</label>
+                    <input type="text" class="form-control" name="search" value="{{ search_query }}" 
+                           placeholder="Search by name, email, or username">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Filter by Role</label>
+                    <select class="form-select" name="role">
+                        <option value="">All Roles</option>
+                        {% for role_value, role_label in role_choices %}
+                            <option value="{{ role_value }}" {% if role_filter == role_value %}selected{% endif %}>
+                                {{ role_label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Filter by Status</label>
+                    <select class="form-select" name="status">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i>Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Users List -->
+        <div class="row">
+            {% for user in page_obj %}
+            <div class="col-md-6 col-lg-4">
+                <div class="user-card">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center mb-3">
+                            {% if user.profile.avatar %}
+                                <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="user-avatar me-3">
+                            {% else %}
+                                <img src="{% static 'admin-img/user.jpg' %}" alt="Default Avatar" class="user-avatar me-3">
+                            {% endif %}
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ user.get_full_name|default:user.username }}</h6>
+                                <small class="text-muted">{{ user.email }}</small>
+                            </div>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" 
+                                        data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'users:admin_user_edit' user.id %}">
+                                            <i class="fas fa-edit me-2"></i>Edit User
+                                        </a>
+                                    </li>
+                                    {% if user != request.user %}
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="{% url 'users:admin_user_delete' user.id %}">
+                                            <i class="fas fa-trash me-2"></i>Delete User
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="role-badge">{{ user.profile.get_role_display }}</span>
+                            <span class="user-status {% if user.is_active %}active{% else %}inactive{% endif %}">
+                                {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                            </span>
+                        </div>
+                        
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <small class="text-muted d-block">Joined</small>
+                                <small>{{ user.date_joined|date:"M d, Y" }}</small>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">Last Login</small>
+                                <small>
+                                    {% if user.last_login %}
+                                        {{ user.last_login|date:"M d, Y" }}
+                                    {% else %}
+                                        Never
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </div>
+                        
+                        {% if user.profile.department %}
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                <i class="fas fa-building me-1"></i>{{ user.profile.department }}
+                            </small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No admin users found</h5>
+                    <p class="text-muted">Try adjusting your search criteria or add a new admin user.</p>
+                    <a href="{% url 'users:admin_user_add' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add First Admin User
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="d-flex justify-content-center mt-4">
+            <nav aria-label="User pagination">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if role_filter %}&role={{ role_filter }}{% endif %}">First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if role_filter %}&role={{ role_filter }}{% endif %}">Previous</a>
+                        </li>
+                    {% endif %}
+                    
+                    <li class="page-item active">
+                        <span class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                    </li>
+                    
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if role_filter %}&role={{ role_filter }}{% endif %}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if role_filter %}&role={{ role_filter }}{% endif %}">Last</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

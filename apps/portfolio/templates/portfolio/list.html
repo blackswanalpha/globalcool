@@ -1,0 +1,123 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Our Portfolio - {{ site_settings.company_name }}{% endblock %}
+{% block description %}View our portfolio of successful HVAC projects in Kenya. See our work in residential and commercial air conditioning installations.{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-20">
+        <div class="container">
+            <div class="max-w-3xl mx-auto text-center">
+                <h1 class="text-4xl md:text-5xl font-heading font-bold mb-6">Our Portfolio</h1>
+                <p class="text-xl text-gray-200">Showcasing our successful HVAC projects across Kenya.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Grid -->
+    <section class="section">
+        <div class="container">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Portfolio Item 1 -->
+                <div class="card-hover">
+                    <div class="relative h-64 bg-gray-200 rounded-t-xl overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4 4h16v2H4V4zm0 4h16v2H4V8zm0 4h16v2H4v-2zm0 4h16v2H4v-2z"/>
+                            </svg>
+                        </div>
+                        <div class="absolute top-4 left-4">
+                            <span class="badge-primary">Residential</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="text-xl font-heading font-semibold text-gray-900 mb-2">Modern Home AC Installation</h3>
+                        <p class="text-gray-600 mb-4">Complete central air conditioning system installation for a 4-bedroom home in Nairobi.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">Completed: 2024</span>
+                            <a href="#" class="text-primary-500 font-medium hover:text-primary-600">View Details →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Item 2 -->
+                <div class="card-hover">
+                    <div class="relative h-64 bg-gray-200 rounded-t-xl overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-br from-secondary-500/20 to-accent-500/20 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4 4h16v2H4V4zm0 4h16v2H4V8zm0 4h16v2H4v-2zm0 4h16v2H4v-2z"/>
+                            </svg>
+                        </div>
+                        <div class="absolute top-4 left-4">
+                            <span class="badge-secondary">Commercial</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="text-xl font-heading font-semibold text-gray-900 mb-2">Office Building HVAC</h3>
+                        <p class="text-gray-600 mb-4">Commercial HVAC system installation for a 10-story office building in Westlands.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">Completed: 2024</span>
+                            <a href="#" class="text-primary-500 font-medium hover:text-primary-600">View Details →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Item 3 -->
+                <div class="card-hover">
+                    <div class="relative h-64 bg-gray-200 rounded-t-xl overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-br from-accent-500/20 to-primary-500/20 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4 4h16v2H4V4zm0 4h16v2H4V8zm0 4h16v2H4v-2zm0 4h16v2H4v-2z"/>
+                            </svg>
+                        </div>
+                        <div class="absolute top-4 left-4">
+                            <span class="badge-success">Maintenance</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="text-xl font-heading font-semibold text-gray-900 mb-2">Hotel HVAC Maintenance</h3>
+                        <p class="text-gray-600 mb-4">Comprehensive maintenance program for a luxury hotel's HVAC systems.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">Ongoing: 2024</span>
+                            <a href="#" class="text-primary-500 font-medium hover:text-primary-600">View Details →</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Section -->
+            <div class="mt-16 bg-white rounded-2xl p-8 shadow-soft">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                    <div>
+                        <div class="text-3xl font-bold text-primary-500 mb-2">500+</div>
+                        <div class="text-gray-600">Projects Completed</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold text-secondary-500 mb-2">100%</div>
+                        <div class="text-gray-600">Client Satisfaction</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold text-accent-500 mb-2">5+</div>
+                        <div class="text-gray-600">Years Experience</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold text-green-500 mb-2">24/7</div>
+                        <div class="text-gray-600">Support Available</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Section -->
+            <div class="text-center mt-16">
+                <div class="bg-primary-50 rounded-2xl p-8">
+                    <h2 class="text-3xl font-heading font-bold text-gray-900 mb-4">Ready to Start Your Project?</h2>
+                    <p class="text-lg text-gray-600 mb-8">Join our satisfied clients and experience professional HVAC services.</p>
+                    <a href="{% url 'leads:quote' %}" class="btn-primary btn-lg">Get Your Free Quote</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,346 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Portfolio Details - {{ site_settings.company_name }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-20">
+        <div class="container">
+            <div class="max-w-4xl mx-auto">
+                <div class="flex items-center mb-4">
+                    <a href="{% url 'portfolio:list' %}" class="text-white hover:text-gray-200 mr-4">
+                        <i class="fas fa-arrow-left text-xl"></i>
+                    </a>
+                    <div class="flex items-center space-x-3">
+                        {% if project.is_featured %}
+                            <span class="badge-warning">Featured</span>
+                        {% endif %}
+                        {% if project.project_type %}
+                            <span class="badge-light">{{ project.get_project_type_display }}</span>
+                        {% endif %}
+                        {% if project.status == 'completed' %}
+                            <span class="badge-success">Completed</span>
+                        {% elif project.status == 'in_progress' %}
+                            <span class="badge-warning">In Progress</span>
+                        {% else %}
+                            <span class="badge-secondary">{{ project.get_status_display }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-heading font-bold mb-4">{{ project.title }}</h1>
+                <p class="text-xl text-gray-200 mb-6">{{ project.summary }}</p>
+                <div class="flex flex-wrap items-center gap-6 text-gray-200">
+                    {% if project.client_name %}
+                        <div class="flex items-center">
+                            <i class="fas fa-user mr-2"></i>
+                            <span>{{ project.client_name }}</span>
+                        </div>
+                    {% endif %}
+                    {% if project.location %}
+                        <div class="flex items-center">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            <span>{{ project.location }}</span>
+                        </div>
+                    {% endif %}
+                    {% if project.end_date %}
+                        <div class="flex items-center">
+                            <i class="fas fa-calendar mr-2"></i>
+                            <span>Completed {{ project.end_date|date:"F Y" }}</span>
+                        </div>
+                    {% endif %}
+                    {% if project.duration_days %}
+                        <div class="flex items-center">
+                            <i class="fas fa-clock mr-2"></i>
+                            <span>{{ project.duration_days }} days</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Project Images Gallery -->
+    {% if project_images %}
+    <section class="section">
+        <div class="container">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="text-3xl font-heading font-bold text-gray-900 mb-8 text-center">Project Gallery</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for image in project_images %}
+                    <div class="relative group cursor-pointer" onclick="openLightbox('{{ image.image.url }}', '{{ image.title|default:project.title }}')">
+                        <img src="{{ image.image.url }}"
+                             alt="{{ image.title|default:project.title }}"
+                             class="w-full h-64 object-cover rounded-lg shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-search-plus text-white text-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></i>
+                        </div>
+                        {% if image.is_featured %}
+                            <div class="absolute top-3 left-3">
+                                <span class="badge-warning">Featured</span>
+                            </div>
+                        {% endif %}
+                        {% if image.title %}
+                            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4 rounded-b-lg">
+                                <p class="text-white text-sm font-medium">{{ image.title }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Project Details -->
+    <section class="section">
+        <div class="container">
+            <div class="max-w-6xl mx-auto">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                    <!-- Main Content -->
+                    <div class="lg:col-span-2">
+                        <div class="card">
+                            <div class="card-body">
+                                <h2 class="text-2xl font-heading font-bold text-gray-900 mb-6">Project Overview</h2>
+                                <div class="prose prose-lg max-w-none">
+                                    {{ project.description|safe }}
+                                </div>
+
+                                {% if project.challenges_solved %}
+                                <div class="mt-8">
+                                    <h3 class="text-xl font-heading font-semibold text-gray-900 mb-4">Challenges Solved</h3>
+                                    <div class="bg-gray-50 rounded-lg p-6">
+                                        <p class="text-gray-700">{{ project.challenges_solved }}</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if project.results_metrics %}
+                                <div class="mt-8">
+                                    <h3 class="text-xl font-heading font-semibold text-gray-900 mb-4">Results & Metrics</h3>
+                                    <div class="bg-primary-50 rounded-lg p-6">
+                                        <p class="text-gray-700">{{ project.results_metrics }}</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="lg:col-span-1">
+                        <!-- Project Info -->
+                        <div class="card mb-8">
+                            <div class="card-body">
+                                <h3 class="text-xl font-heading font-semibold text-gray-900 mb-4">Project Information</h3>
+                                <div class="space-y-4">
+                                    {% if project.start_date %}
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Start Date:</span>
+                                        <span class="font-medium">{{ project.start_date|date:"M d, Y" }}</span>
+                                    </div>
+                                    {% endif %}
+
+                                    {% if project.end_date %}
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">End Date:</span>
+                                        <span class="font-medium">{{ project.end_date|date:"M d, Y" }}</span>
+                                    </div>
+                                    {% endif %}
+
+                                    {% if project.duration_days %}
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Duration:</span>
+                                        <span class="font-medium">{{ project.duration_days }} days</span>
+                                    </div>
+                                    {% endif %}
+
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Status:</span>
+                                        <span class="font-medium">{{ project.get_status_display }}</span>
+                                    </div>
+
+                                    {% if project.completion_percentage %}
+                                    <div>
+                                        <div class="flex justify-between mb-2">
+                                            <span class="text-gray-600">Completion:</span>
+                                            <span class="font-medium">{{ project.completion_percentage }}%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-primary-600 h-2 rounded-full" style="width: {{ project.completion_percentage }}%"></div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Related Services -->
+                        {% if project.services.exists %}
+                        <div class="card mb-8">
+                            <div class="card-body">
+                                <h3 class="text-xl font-heading font-semibold text-gray-900 mb-4">Services Provided</h3>
+                                <div class="space-y-3">
+                                    {% for service in project.services.all %}
+                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                        <i class="fas fa-tools text-primary-600 mr-3"></i>
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">{{ service.name }}</h4>
+                                            <p class="text-sm text-gray-600">{{ service.category.name }}</p>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Contact CTA -->
+                        <div class="card bg-primary-600 text-white">
+                            <div class="card-body text-center">
+                                <h3 class="text-xl font-heading font-semibold mb-4">Interested in Similar Work?</h3>
+                                <p class="mb-6">Get in touch with us to discuss your HVAC project requirements.</p>
+                                <a href="{% url 'leads:inquiry_create' %}" class="btn-light">
+                                    <i class="fas fa-envelope mr-2"></i>Get Quote
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    {% if testimonials %}
+    <section class="section bg-gray-100">
+        <div class="container">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-heading font-bold text-gray-900 mb-8 text-center">Client Testimonials</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {% for testimonial in testimonials %}
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="flex items-center mb-4">
+                                {% if testimonial.author_image %}
+                                    <img src="{{ testimonial.author_image.url }}"
+                                         alt="{{ testimonial.author_name }}"
+                                         class="w-12 h-12 rounded-full object-cover mr-4">
+                                {% else %}
+                                    <div class="w-12 h-12 bg-primary-600 rounded-full flex items-center justify-center mr-4">
+                                        <i class="fas fa-user text-white"></i>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">{{ testimonial.author_name }}</h4>
+                                    <p class="text-sm text-gray-600">
+                                        {{ testimonial.author_title|default:"" }}
+                                        {% if testimonial.author_company %}
+                                            {% if testimonial.author_title %} at {% endif %}{{ testimonial.author_company }}
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                            <blockquote class="text-gray-700 mb-4">
+                                "{{ testimonial.quote }}"
+                            </blockquote>
+                            <div class="flex items-center">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= testimonial.rating %}
+                                        <i class="fas fa-star text-yellow-400"></i>
+                                    {% else %}
+                                        <i class="far fa-star text-gray-300"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Related Projects -->
+    {% if related_projects %}
+    <section class="section">
+        <div class="container">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="text-3xl font-heading font-bold text-gray-900 mb-8 text-center">Related Projects</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {% for related in related_projects %}
+                    <div class="card-hover">
+                        <div class="relative h-48 bg-gray-200 rounded-t-xl overflow-hidden">
+                            {% if related.images.first %}
+                                <img src="{{ related.images.first.image.url }}"
+                                     alt="{{ related.title }}"
+                                     class="w-full h-full object-cover">
+                            {% else %}
+                                <div class="absolute inset-0 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 flex items-center justify-center">
+                                    <i class="fas fa-briefcase text-2xl text-gray-400"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <h3 class="font-heading font-semibold text-gray-900 mb-2">{{ related.title|truncatechars:40 }}</h3>
+                            <p class="text-sm text-gray-600 mb-3">{{ related.location|default:"Kenya" }}</p>
+                            <a href="{{ related.get_absolute_url }}" class="btn-primary-sm w-full text-center">
+                                View Project
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+</div>
+
+<!-- Lightbox Modal -->
+<div id="lightbox" class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden flex items-center justify-center p-4">
+    <div class="relative max-w-4xl max-h-full">
+        <button onclick="closeLightbox()" class="absolute top-4 right-4 text-white text-2xl hover:text-gray-300 z-10">
+            <i class="fas fa-times"></i>
+        </button>
+        <img id="lightbox-image" src="" alt="" class="max-w-full max-h-full object-contain">
+        <div id="lightbox-caption" class="absolute bottom-4 left-4 right-4 text-white text-center bg-black bg-opacity-50 p-2 rounded"></div>
+    </div>
+</div>
+
+<script>
+function openLightbox(imageSrc, caption) {
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImage = document.getElementById('lightbox-image');
+    const lightboxCaption = document.getElementById('lightbox-caption');
+
+    lightboxImage.src = imageSrc;
+    lightboxCaption.textContent = caption;
+    lightbox.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    const lightbox = document.getElementById('lightbox');
+    lightbox.classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+// Close lightbox on escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeLightbox();
+    }
+});
+
+// Close lightbox on background click
+document.getElementById('lightbox').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeLightbox();
+    }
+});
+</script>
+{% endblock %}

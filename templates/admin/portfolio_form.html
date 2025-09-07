@@ -1,0 +1,489 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Global Cool-Light E.A LTD{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .form-header {
+        background: linear-gradient(135deg, #004AAD 0%, #00AEEF 100%);
+        color: white;
+        padding: 2rem;
+        margin-bottom: 0;
+    }
+    
+    .form-section {
+        padding: 2rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .form-section:last-child {
+        border-bottom: none;
+    }
+    
+    .section-title {
+        color: #004AAD;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #00AEEF;
+        display: inline-block;
+    }
+    
+    .image-preview {
+        max-width: 150px;
+        max-height: 150px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 2px solid #ddd;
+    }
+    
+    .formset-row {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid #00AEEF;
+    }
+    
+    .delete-row {
+        background: #fff5f5;
+        border-left-color: #dc3545;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Include Enhanced Sidebar -->
+{% include 'components/admin_sidebar.html' %}
+
+<!-- Content Start -->
+<div class="content">
+    <!-- Navbar Start -->
+    <nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
+        <a href="#" class="sidebar-toggler flex-shrink-0">
+            <i class="fa fa-bars"></i>
+        </a>
+        <div class="navbar-nav align-items-center ms-auto">
+            <div class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fa fa-user me-lg-2"></i>
+                    <span class="d-none d-lg-inline-flex">{{ user.get_full_name|default:user.username }}</span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                    <a href="{% url 'users:admin_logout' %}" class="dropdown-item">Log Out</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- Navbar End -->
+
+    <!-- Form Container Start -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="row justify-content-center">
+            <div class="col-12 col-xl-10">
+                <div class="form-container">
+                    <!-- Header -->
+                    <div class="form-header">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h1>
+                                    <i class="fas fa-briefcase me-3"></i>{{ title }}
+                                </h1>
+                                <p class="mb-0">Create and manage portfolio projects with detailed information and media</p>
+                            </div>
+                            <a href="{% url 'users:admin_portfolio_list' %}" class="btn btn-light btn-lg">
+                                <i class="fas fa-arrow-left me-2"></i>Back
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Form Start -->
+                    <form method="post" enctype="multipart/form-data" id="portfolioForm">
+                        {% csrf_token %}
+                        
+                        <!-- Display Messages -->
+                        {% if messages %}
+                            <div class="form-section">
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <!-- Basic Information -->
+                        <div class="form-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-info-circle me-2"></i>Basic Information
+                            </h3>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <label for="{{ form.title.id_for_label }}" class="form-label">Project Title *</label>
+                                        {{ form.title }}
+                                        {% if form.title.errors %}
+                                            <div class="text-danger small">{{ form.title.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="{{ form.project_type.id_for_label }}" class="form-label">Project Type</label>
+                                        {{ form.project_type }}
+                                        {% if form.project_type.errors %}
+                                            <div class="text-danger small">{{ form.project_type.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.summary.id_for_label }}" class="form-label">Project Summary *</label>
+                                {{ form.summary }}
+                                <div class="form-text">Brief description for listings (max 500 characters)</div>
+                                {% if form.summary.errors %}
+                                    <div class="text-danger small">{{ form.summary.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.description.id_for_label }}" class="form-label">Detailed Description</label>
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                    <div class="text-danger small">{{ form.description.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Client & Location -->
+                        <div class="form-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-user-tie me-2"></i>Client & Location
+                            </h3>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.client_name.id_for_label }}" class="form-label">Client Name</label>
+                                        {{ form.client_name }}
+                                        {% if form.client_name.errors %}
+                                            <div class="text-danger small">{{ form.client_name.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.location.id_for_label }}" class="form-label">Location</label>
+                                        {{ form.location }}
+                                        {% if form.location.errors %}
+                                            <div class="text-danger small">{{ form.location.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Timeline & Status -->
+                        <div class="form-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-calendar me-2"></i>Timeline & Status
+                            </h3>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="{{ form.start_date.id_for_label }}" class="form-label">Start Date</label>
+                                        {{ form.start_date }}
+                                        {% if form.start_date.errors %}
+                                            <div class="text-danger small">{{ form.start_date.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="{{ form.end_date.id_for_label }}" class="form-label">End Date</label>
+                                        {{ form.end_date }}
+                                        {% if form.end_date.errors %}
+                                            <div class="text-danger small">{{ form.end_date.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="{{ form.duration_days.id_for_label }}" class="form-label">Duration (Days)</label>
+                                        {{ form.duration_days }}
+                                        {% if form.duration_days.errors %}
+                                            <div class="text-danger small">{{ form.duration_days.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                                        {{ form.status }}
+                                        {% if form.status.errors %}
+                                            <div class="text-danger small">{{ form.status.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.completion_percentage.id_for_label }}" class="form-label">Completion %</label>
+                                        {{ form.completion_percentage }}
+                                        {% if form.completion_percentage.errors %}
+                                            <div class="text-danger small">{{ form.completion_percentage.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.services.id_for_label }}" class="form-label">Related Services</label>
+                                        {{ form.services }}
+                                        <div class="form-text">{{ form.services.help_text }}</div>
+                                        {% if form.services.errors %}
+                                            <div class="text-danger small">{{ form.services.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Project Results -->
+                        <div class="form-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-chart-line me-2"></i>Project Results
+                            </h3>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.results_metrics.id_for_label }}" class="form-label">Results & Metrics</label>
+                                        {{ form.results_metrics }}
+                                        <div class="form-text">Project outcomes and measurable results</div>
+                                        {% if form.results_metrics.errors %}
+                                            <div class="text-danger small">{{ form.results_metrics.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.challenges_solved.id_for_label }}" class="form-label">Challenges Solved</label>
+                                        {{ form.challenges_solved }}
+                                        <div class="form-text">Key challenges overcome during the project</div>
+                                        {% if form.challenges_solved.errors %}
+                                            <div class="text-danger small">{{ form.challenges_solved.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Project Images -->
+                        <div class="form-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-images me-2"></i>Project Images
+                            </h3>
+                            <p class="text-muted mb-4">Upload images to showcase your project. The first featured image will be used as the project thumbnail.</p>
+                            
+                            {{ image_formset.management_form }}
+                            <div id="image-formset">
+                                {% for form in image_formset %}
+                                    <div class="formset-row {% if form.DELETE.value %}delete-row{% endif %}" data-form-index="{{ forloop.counter0 }}">
+                                        <div class="row align-items-start">
+                                            <div class="col-md-3">
+                                                {% if form.instance.image %}
+                                                    <img src="{{ form.instance.image.url }}" alt="Current image" class="image-preview mb-2">
+                                                {% endif %}
+                                                <div class="mb-2">
+                                                    <label class="form-label">Image File</label>
+                                                    {{ form.image }}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="mb-2">
+                                                    <label class="form-label">Title</label>
+                                                    {{ form.title }}
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label class="form-label">Type</label>
+                                                    {{ form.image_type }}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="mb-2">
+                                                    <label class="form-label">Description</label>
+                                                    {{ form.description }}
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label class="form-label">Order</label>
+                                                    {{ form.order }}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-check mb-2">
+                                                    {{ form.is_featured }}
+                                                    <label class="form-check-label">Featured</label>
+                                                </div>
+                                                {% if form.DELETE %}
+                                                    <div class="form-check">
+                                                        {{ form.DELETE }}
+                                                        <label class="form-check-label text-danger">Delete</label>
+                                                    </div>
+                                                {% endif %}
+                                                {{ form.id }}
+                                            </div>
+                                        </div>
+                                        {% for field in form %}
+                                            {% if field.errors %}
+                                                <div class="text-danger small">{{ field.errors.0 }}</div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <button type="button" class="btn btn-outline-primary" onclick="addImageForm()">
+                                <i class="fas fa-plus me-2"></i>Add Another Image
+                            </button>
+                        </div>
+
+                        <!-- Visibility & SEO -->
+                        <div class="form-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-eye me-2"></i>Visibility & SEO
+                            </h3>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="form-check mb-3">
+                                                {{ form.is_published }}
+                                                <label class="form-check-label" for="{{ form.is_published.id_for_label }}">
+                                                    Published (visible to public)
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-check mb-3">
+                                                {{ form.is_featured }}
+                                                <label class="form-check-label" for="{{ form.is_featured.id_for_label }}">
+                                                    Featured (highlighted on homepage)
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.meta_title.id_for_label }}" class="form-label">SEO Title</label>
+                                        {{ form.meta_title }}
+                                        <div class="form-text">Optimized title for search engines (max 60 characters)</div>
+                                        {% if form.meta_title.errors %}
+                                            <div class="text-danger small">{{ form.meta_title.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="{{ form.meta_description.id_for_label }}" class="form-label">SEO Description</label>
+                                        {{ form.meta_description }}
+                                        <div class="form-text">Meta description for search results (max 160 characters)</div>
+                                        {% if form.meta_description.errors %}
+                                            <div class="text-danger small">{{ form.meta_description.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="form-section">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{% url 'users:admin_portfolio_list' %}" class="btn btn-secondary btn-lg">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </a>
+                                <div>
+                                    <button type="submit" name="save_draft" class="btn btn-outline-primary btn-lg me-3">
+                                        <i class="fas fa-save me-2"></i>Save as Draft
+                                    </button>
+                                    <button type="submit" name="save_publish" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-check me-2"></i>{{ action }} & Publish
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <!-- Form End -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Form Container End -->
+</div>
+<!-- Content End -->
+
+<script>
+let formIndex = {{ image_formset.total_form_count }};
+
+function addImageForm() {
+    const formsetDiv = document.getElementById('image-formset');
+    const emptyForm = document.querySelector('.formset-row').cloneNode(true);
+    
+    // Update form index
+    emptyForm.innerHTML = emptyForm.innerHTML.replace(/__prefix__/g, formIndex);
+    emptyForm.setAttribute('data-form-index', formIndex);
+    emptyForm.classList.remove('delete-row');
+    
+    // Clear values
+    emptyForm.querySelectorAll('input, select, textarea').forEach(input => {
+        if (input.type !== 'hidden') {
+            input.value = '';
+            if (input.type === 'checkbox') {
+                input.checked = false;
+            }
+        }
+    });
+    
+    // Remove existing image preview
+    const imagePreview = emptyForm.querySelector('.image-preview');
+    if (imagePreview) {
+        imagePreview.remove();
+    }
+    
+    formsetDiv.appendChild(emptyForm);
+    
+    // Update total forms count
+    const totalForms = document.querySelector('#id_images-TOTAL_FORMS');
+    totalForms.value = parseInt(totalForms.value) + 1;
+    
+    formIndex++;
+}
+
+// Handle save buttons
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('portfolioForm');
+    const saveDraftBtn = document.querySelector('button[name="save_draft"]');
+    const savePublishBtn = document.querySelector('button[name="save_publish"]');
+    
+    if (saveDraftBtn) {
+        saveDraftBtn.addEventListener('click', function() {
+            document.getElementById('{{ form.is_published.id_for_label }}').checked = false;
+        });
+    }
+    
+    if (savePublishBtn) {
+        savePublishBtn.addEventListener('click', function() {
+            document.getElementById('{{ form.is_published.id_for_label }}').checked = true;
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clickability Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-button {
+            background: #004AAD;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .test-button:hover {
+            background: #003d8f;
+        }
+        .test-link {
+            color: #004AAD;
+            text-decoration: underline;
+            cursor: pointer;
+            margin: 10px;
+            display: inline-block;
+        }
+        .test-link:hover {
+            color: #003d8f;
+        }
+        .debug-info {
+            background: #f0f0f0;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Clickability Test Page</h1>
+    
+    <div class="debug-info">
+        <h3>Debug Information:</h3>
+        <p id="user-agent"></p>
+        <p id="click-count">Clicks detected: 0</p>
+    </div>
+    
+    <h2>Test Elements:</h2>
+    
+    <!-- Basic HTML Link -->
+    <a href="/about/" class="test-link">Basic HTML Link to About Page</a><br>
+    
+    <!-- Button with onclick -->
+    <button class="test-button" onclick="testClick('Button with onclick')">Button with onclick</button><br>
+    
+    <!-- Link with onclick -->
+    <a href="#" class="test-link" onclick="testClick('Link with onclick'); return false;">Link with onclick</a><br>
+    
+    <!-- Button with event listener -->
+    <button class="test-button" id="event-button">Button with Event Listener</button><br>
+    
+    <!-- Styled div as button -->
+    <div class="test-button" onclick="testClick('Div as button')" style="cursor: pointer;">Div styled as button</div><br>
+    
+    <!-- Link to external site -->
+    <a href="https://google.com" class="test-link" target="_blank">External Link (Google)</a><br>
+    
+    <!-- Form button -->
+    <form onsubmit="testClick('Form submitted'); return false;">
+        <button type="submit" class="test-button">Form Submit Button</button>
+    </form>
+    
+    <h2>Test Results:</h2>
+    <div id="test-results" class="debug-info">
+        <p>Click on the elements above to test clickability...</p>
+    </div>
+    
+    <script>
+        let clickCount = 0;
+        
+        // Update user agent info
+        document.getElementById('user-agent').textContent = 'User Agent: ' + navigator.userAgent;
+        
+        // Test click function
+        function testClick(elementName) {
+            clickCount++;
+            document.getElementById('click-count').textContent = 'Clicks detected: ' + clickCount;
+            
+            const results = document.getElementById('test-results');
+            results.innerHTML += '<p>✅ ' + elementName + ' clicked successfully at ' + new Date().toLocaleTimeString() + '</p>';
+            
+            console.log('Click successful:', elementName);
+            alert('✅ ' + elementName + ' is clickable!');
+        }
+        
+        // Add event listener to the event button
+        document.getElementById('event-button').addEventListener('click', function() {
+            testClick('Button with Event Listener');
+        });
+        
+        // Global click detector
+        document.addEventListener('click', function(e) {
+            console.log('Global click detected on:', e.target.tagName, e.target.className);
+        });
+        
+        // Test if JavaScript is working
+        console.log('JavaScript is working on test page');
+        document.getElementById('test-results').innerHTML += '<p>🟢 JavaScript is loaded and working</p>';
+    </script>
+</body>
+</html>

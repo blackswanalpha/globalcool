@@ -1,0 +1,277 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}Quotation Management - Global Cool-Light E.A LTD{% endblock %}
+
+{% block extra_css %}
+<style>
+    .filter-section {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .quotation-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+    
+    .quotation-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .status-draft { background: #f3f4f6; color: #374151; }
+    .status-sent { background: #dbeafe; color: #1e40af; }
+    .status-viewed { background: #fef3c7; color: #92400e; }
+    .status-accepted { background: #d1fae5; color: #065f46; }
+    .status-rejected { background: #fee2e2; color: #991b1b; }
+    .status-expired { background: #fecaca; color: #7f1d1d; }
+    .status-revised { background: #e0e7ff; color: #3730a3; }
+    
+    .stats-card {
+        background: linear-gradient(135deg, #004AAD 0%, #00AEEF 100%);
+        color: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .stats-number {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    
+    .amount-display {
+        font-weight: 600;
+        color: #004AAD;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Include Enhanced Sidebar -->
+{% include 'components/admin_sidebar.html' %}
+
+<!-- Content Start -->
+<div class="content">
+    <!-- Include Enhanced Header -->
+    {% include 'components/admin_header.html' %}
+
+    <!-- Page Header -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h1 class="h3 mb-0 text-gray-800">
+                            <i class="fas fa-file-invoice-dollar me-2 text-primary"></i>{{ title }}
+                        </h1>
+                        <p class="text-muted mb-0">Manage quotations and track their status</p>
+                    </div>
+                    <a href="{% url 'users:admin_quotation_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Create New Quotation
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="container-fluid px-4">
+        <div class="row g-4 mb-4">
+            <div class="col-sm-6 col-xl-3">
+                <div class="stats-card">
+                    <div class="stats-number">{{ stats.total_quotations }}</div>
+                    <div>Total Quotations</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stats-card">
+                    <div class="stats-number">{{ stats.draft_quotations }}</div>
+                    <div>Draft Quotations</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stats-card">
+                    <div class="stats-number">{{ stats.pending_quotations }}</div>
+                    <div>Pending Response</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stats-card">
+                    <div class="stats-number">{{ stats.accepted_quotations }}</div>
+                    <div>Accepted</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="container-fluid px-4">
+        <div class="filter-section">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="search" class="form-control" 
+                           placeholder="Search by quote number, title, or client..." 
+                           value="{{ search_query }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All Statuses</option>
+                        {% for status_code, status_name in status_choices %}
+                            <option value="{{ status_code }}" {% if status_filter == status_code %}selected{% endif %}>
+                                {{ status_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Date Filter</label>
+                    <select name="date_filter" class="form-select">
+                        <option value="">All Time</option>
+                        <option value="today" {% if date_filter == 'today' %}selected{% endif %}>Today</option>
+                        <option value="week" {% if date_filter == 'week' %}selected{% endif %}>This Week</option>
+                        <option value="month" {% if date_filter == 'month' %}selected{% endif %}>This Month</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i>Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quotations List -->
+    <div class="container-fluid px-4">
+        {% if page_obj %}
+            {% for quotation in page_obj %}
+                <div class="quotation-card">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <h5 class="mb-1">
+                                <a href="{% url 'users:admin_quotation_detail' quotation.id %}" 
+                                   class="text-decoration-none text-primary">
+                                    {{ quotation.quote_number }}
+                                </a>
+                            </h5>
+                            <p class="text-muted mb-0">{{ quotation.title }}</p>
+                        </div>
+                        <div class="col-md-2">
+                            <strong>{{ quotation.client.name }}</strong>
+                            <br>
+                            <small class="text-muted">{{ quotation.client.email }}</small>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="amount-display">KSh {{ quotation.total|floatformat:2 }}</div>
+                            <small class="text-muted">Valid until: {{ quotation.valid_until }}</small>
+                        </div>
+                        <div class="col-md-2">
+                            <span class="status-badge status-{{ quotation.status }}">
+                                {{ quotation.get_status_display }}
+                            </span>
+                        </div>
+                        <div class="col-md-2">
+                            <small class="text-muted">{{ quotation.created_at|date:"M d, Y" }}</small>
+                            {% if quotation.created_by %}
+                                <br><small class="text-muted">by {{ quotation.created_by.get_full_name|default:quotation.created_by.username }}</small>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-1">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" 
+                                        data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'users:admin_quotation_detail' quotation.id %}">
+                                            <i class="fas fa-eye me-2"></i>View Details
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'users:admin_quotation_edit' quotation.id %}">
+                                            <i class="fas fa-edit me-2"></i>Edit
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="{% url 'users:admin_quotation_delete' quotation.id %}">
+                                            <i class="fas fa-trash me-2"></i>Delete
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+                <div class="d-flex justify-content-center mt-4">
+                    <nav aria-label="Quotations pagination">
+                        <ul class="pagination">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_filter %}&date_filter={{ date_filter }}{% endif %}">First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_filter %}&date_filter={{ date_filter }}{% endif %}">Previous</a>
+                                </li>
+                            {% endif %}
+
+                            <li class="page-item active">
+                                <span class="page-link">
+                                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                                </span>
+                            </li>
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_filter %}&date_filter={{ date_filter }}{% endif %}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_filter %}&date_filter={{ date_filter }}{% endif %}">Last</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-file-invoice-dollar fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">No quotations found</h4>
+                <p class="text-muted">Create your first quotation to get started.</p>
+                <a href="{% url 'users:admin_quotation_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Create New Quotation
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+<!-- Content End -->
+{% endblock %}

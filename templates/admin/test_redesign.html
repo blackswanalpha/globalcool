@@ -1,0 +1,271 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}Admin Portal Redesign Test - Global Cool-Light E.A LTD{% endblock %}
+
+{% block extra_css %}
+<style>
+    .test-section {
+        margin: 2rem 0;
+        padding: 1.5rem;
+        background: var(--surface);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .test-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .test-card {
+        padding: 1rem;
+        background: var(--background);
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-light);
+    }
+    
+    .color-swatch {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-sm);
+        display: inline-block;
+        margin-right: 0.5rem;
+        border: 1px solid var(--border-light);
+    }
+    
+    .responsive-test {
+        border: 2px dashed var(--border-medium);
+        padding: 1rem;
+        margin: 1rem 0;
+        text-align: center;
+    }
+    
+    @media (max-width: 991.98px) {
+        .responsive-test::before {
+            content: "📱 Mobile/Tablet View";
+            display: block;
+            font-weight: bold;
+            color: var(--primary);
+        }
+    }
+    
+    @media (min-width: 992px) {
+        .responsive-test::before {
+            content: "🖥️ Desktop View";
+            display: block;
+            font-weight: bold;
+            color: var(--success);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Include Enhanced Sidebar -->
+{% include 'components/admin_sidebar.html' %}
+
+<!-- Content Start -->
+<div class="content">
+    <!-- Include Enhanced Header with Test Breadcrumb -->
+    {% include 'components/admin_header.html' %}
+    
+    <!-- Test Content -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mb-4">
+                    <i class="fas fa-flask text-primary me-2"></i>
+                    Admin Portal Redesign Test Page
+                </h1>
+                
+                <!-- Design System Test -->
+                <div class="test-section">
+                    <h3><i class="fas fa-palette me-2"></i>Design System Test</h3>
+                    <p class="text-muted">Testing the new color scheme and design tokens</p>
+                    
+                    <div class="test-grid">
+                        <div class="test-card">
+                            <h5>Brand Colors</h5>
+                            <div class="mb-2">
+                                <span class="color-swatch" style="background-color: var(--primary);"></span>
+                                Primary (#004AAD)
+                            </div>
+                            <div class="mb-2">
+                                <span class="color-swatch" style="background-color: var(--secondary);"></span>
+                                Secondary (#00AEEF)
+                            </div>
+                            <div class="mb-2">
+                                <span class="color-swatch" style="background-color: var(--accent);"></span>
+                                Accent (#FFB800)
+                            </div>
+                        </div>
+                        
+                        <div class="test-card">
+                            <h5>Status Colors</h5>
+                            <div class="mb-2">
+                                <span class="color-swatch" style="background-color: var(--success);"></span>
+                                Success
+                            </div>
+                            <div class="mb-2">
+                                <span class="color-swatch" style="background-color: var(--warning);"></span>
+                                Warning
+                            </div>
+                            <div class="mb-2">
+                                <span class="color-swatch" style="background-color: var(--error);"></span>
+                                Error
+                            </div>
+                        </div>
+                        
+                        <div class="test-card">
+                            <h5>Button Tests</h5>
+                            <div class="d-flex flex-wrap gap-2">
+                                <button class="btn btn-primary">Primary</button>
+                                <button class="btn btn-secondary">Secondary</button>
+                                <button class="btn btn-accent">Accent</button>
+                                <button class="btn btn-success">Success</button>
+                                <button class="btn btn-outline-primary">Outline</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Navigation Test -->
+                <div class="test-section">
+                    <h3><i class="fas fa-compass me-2"></i>Navigation Test</h3>
+                    <p class="text-muted">Testing sidebar and header navigation functionality</p>
+                    
+                    <div class="test-grid">
+                        <div class="test-card">
+                            <h5>Sidebar Features</h5>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success me-2"></i>Collapsible sidebar</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Grouped navigation</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Active state indicators</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Dropdown menus</li>
+                                <li><i class="fas fa-check text-success me-2"></i>User profile section</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="test-card">
+                            <h5>Header Features</h5>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success me-2"></i>Breadcrumb navigation</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Global search</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Notifications dropdown</li>
+                                <li><i class="fas fa-check text-success me-2"></i>User profile dropdown</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Quick actions</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Responsive Test -->
+                <div class="test-section">
+                    <h3><i class="fas fa-mobile-alt me-2"></i>Responsive Design Test</h3>
+                    <p class="text-muted">Testing responsive behavior across different screen sizes</p>
+                    
+                    <div class="responsive-test">
+                        <p>Resize your browser window to test responsive behavior</p>
+                        <p><strong>Desktop (≥992px):</strong> Full sidebar, all header elements visible</p>
+                        <p><strong>Tablet (768px-991px):</strong> Collapsible sidebar, condensed header</p>
+                        <p><strong>Mobile (<768px):</strong> Overlay sidebar, mobile-optimized header</p>
+                    </div>
+                </div>
+                
+                <!-- Accessibility Test -->
+                <div class="test-section">
+                    <h3><i class="fas fa-universal-access me-2"></i>Accessibility Test</h3>
+                    <p class="text-muted">Testing accessibility features and compliance</p>
+                    
+                    <div class="test-grid">
+                        <div class="test-card">
+                            <h5>Keyboard Navigation</h5>
+                            <p>Try navigating using:</p>
+                            <ul>
+                                <li><kbd>Tab</kbd> - Move between elements</li>
+                                <li><kbd>Enter</kbd>/<kbd>Space</kbd> - Activate buttons</li>
+                                <li><kbd>Esc</kbd> - Close dropdowns</li>
+                                <li><kbd>↑</kbd>/<kbd>↓</kbd> - Navigate dropdowns</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="test-card">
+                            <h5>Screen Reader Support</h5>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success me-2"></i>ARIA labels</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Role attributes</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Alt text for images</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Semantic HTML</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="test-card">
+                            <h5>Visual Accessibility</h5>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success me-2"></i>High contrast ratios</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Focus indicators</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Scalable text</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Color-blind friendly</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Performance Test -->
+                <div class="test-section">
+                    <h3><i class="fas fa-tachometer-alt me-2"></i>Performance Test</h3>
+                    <p class="text-muted">Testing performance optimizations and loading times</p>
+                    
+                    <div class="test-card">
+                        <h5>Performance Metrics</h5>
+                        <div class="row">
+                            <div class="col-md-3 text-center">
+                                <div class="h4 text-success" id="loadTime">--</div>
+                                <small class="text-muted">Load Time (ms)</small>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <div class="h4 text-info" id="domElements">--</div>
+                                <small class="text-muted">DOM Elements</small>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <div class="h4 text-warning" id="cssRules">--</div>
+                                <small class="text-muted">CSS Rules</small>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <div class="h4 text-primary" id="jsEvents">--</div>
+                                <small class="text-muted">JS Events</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Performance metrics
+    const loadTime = performance.now();
+    document.getElementById('loadTime').textContent = Math.round(loadTime);
+    
+    const domElements = document.querySelectorAll('*').length;
+    document.getElementById('domElements').textContent = domElements;
+    
+    const cssRules = Array.from(document.styleSheets).reduce((count, sheet) => {
+        try {
+            return count + (sheet.cssRules ? sheet.cssRules.length : 0);
+        } catch (e) {
+            return count;
+        }
+    }, 0);
+    document.getElementById('cssRules').textContent = cssRules;
+    
+    const jsEvents = Object.keys(window).filter(key => key.startsWith('on')).length;
+    document.getElementById('jsEvents').textContent = jsEvents;
+});
+</script>
+{% endblock %}

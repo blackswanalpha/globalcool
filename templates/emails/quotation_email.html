@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quotation {{ quotation.quote_number }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #004AAD;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+        .content {
+            background-color: #f9f9f9;
+            padding: 30px;
+            border: 1px solid #ddd;
+        }
+        .quotation-details {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #004AAD;
+        }
+        .line-items {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .line-items th,
+        .line-items td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        .line-items th {
+            background-color: #004AAD;
+            color: white;
+        }
+        .line-items tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .financial-summary {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 2px solid #00AEEF;
+        }
+        .total-amount {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #004AAD;
+            text-align: right;
+            margin-top: 10px;
+        }
+        .footer {
+            background-color: #004AAD;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 0 0 8px 8px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #FFB800;
+            color: #004AAD;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .btn:hover {
+            background-color: #e6a600;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ company_name }}</h1>
+        <h2>Quotation {{ quotation.quote_number }}</h2>
+    </div>
+
+    <div class="content">
+        <p>Dear {{ client.name }},</p>
+        
+        <p>Thank you for your interest in our HVAC services. Please find below your detailed quotation:</p>
+
+        <div class="quotation-details">
+            <h3>{{ quotation.title }}</h3>
+            <p><strong>Quotation Number:</strong> {{ quotation.quote_number }}</p>
+            <p><strong>Date:</strong> {{ quotation.created_at|date:"F d, Y" }}</p>
+            <p><strong>Valid Until:</strong> {{ quotation.valid_until|date:"F d, Y" }}</p>
+            {% if quotation.description %}
+                <p><strong>Description:</strong></p>
+                <p>{{ quotation.description|linebreaks }}</p>
+            {% endif %}
+        </div>
+
+        <h3>Line Items</h3>
+        <table class="line-items">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Quantity</th>
+                    <th>Unit Price (KSh)</th>
+                    <th>Total (KSh)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in quotation.get_items %}
+                <tr>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.unit_price|floatformat:2 }}</td>
+                    <td>{{ item.total|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="financial-summary">
+            <h3>Financial Summary</h3>
+            <table style="width: 100%; border: none;">
+                <tr>
+                    <td style="border: none; text-align: right;"><strong>Subtotal:</strong></td>
+                    <td style="border: none; text-align: right; width: 150px;">KSh {{ quotation.subtotal|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td style="border: none; text-align: right;"><strong>Tax ({{ quotation.tax_rate }}%):</strong></td>
+                    <td style="border: none; text-align: right;">KSh {{ quotation.tax_amount|floatformat:2 }}</td>
+                </tr>
+                {% if quotation.discount_amount > 0 %}
+                <tr>
+                    <td style="border: none; text-align: right;"><strong>Discount:</strong></td>
+                    <td style="border: none; text-align: right;">-KSh {{ quotation.discount_amount|floatformat:2 }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td colspan="2" style="border: none;">
+                        <div class="total-amount">Total: KSh {{ quotation.total|floatformat:2 }}</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        {% if quotation.terms_and_conditions %}
+        <div class="quotation-details">
+            <h3>Terms and Conditions</h3>
+            <p>{{ quotation.terms_and_conditions|linebreaks }}</p>
+        </div>
+        {% endif %}
+
+        <p>If you have any questions about this quotation, please don't hesitate to contact us.</p>
+        
+        <p>We look forward to working with you!</p>
+
+        <p>Best regards,<br>
+        <strong>{{ company_name }} Team</strong></p>
+    </div>
+
+    <div class="footer">
+        <p><strong>Contact Information</strong></p>
+        <p>Email: {{ company_email }} | Phone: {{ company_phone }}</p>
+        <p>Professional HVAC Services | Installation | Maintenance | Repair</p>
+    </div>
+</body>
+</html>

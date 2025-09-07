@@ -1,0 +1,384 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Global Cool-Light E.A LTD{% endblock %}
+
+{% block content %}
+<!-- Include Enhanced Sidebar -->
+{% include 'components/admin_sidebar.html' %}
+
+<!-- Content Start -->
+<div class="content">
+    <!-- Include Enhanced Header -->
+    {% include 'components/admin_header.html' %}
+
+    <!-- Page Header -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h1 class="h3 mb-0 text-gray-800">
+                            <i class="fas fa-comments me-2 text-primary"></i>{{ title }}
+                        </h1>
+                        <p class="text-muted mb-0">Manage chat conversations and lead interactions</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary" onclick="refreshLeads()">
+                            <i class="fas fa-sync-alt me-2"></i>Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="container-fluid px-4">
+        <div class="row g-4 mb-4">
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                    <i class="fas fa-comments fa-3x text-primary"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Total Leads</p>
+                        <h6 class="mb-0">{{ total_leads }}</h6>
+                        <small class="text-muted">All conversations</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                    <i class="fas fa-comment-dots fa-3x text-success"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Active Chats</p>
+                        <h6 class="mb-0">{{ active_leads }}</h6>
+                        <small class="text-muted">Currently active</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                    <i class="fas fa-bell fa-3x text-warning"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">New Leads</p>
+                        <h6 class="mb-0">{{ new_leads }}</h6>
+                        <small class="text-muted">Need attention</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                    <i class="fas fa-envelope fa-3x text-danger"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Unread Messages</p>
+                        <h6 class="mb-0">{{ unread_messages }}</h6>
+                        <small class="text-muted">Require response</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="container-fluid px-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="bg-light rounded p-4 mb-4">
+                    <form method="GET" class="row g-3">
+                        <!-- Search -->
+                        <div class="col-md-4">
+                            <label for="search" class="form-label">Search Leads</label>
+                            <input type="text" class="form-control" id="search" name="search" 
+                                   value="{{ search_query }}" placeholder="Name, email, phone, or session ID">
+                        </div>
+                        
+                        <!-- Status Filter -->
+                        <div class="col-md-2">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="">All Status</option>
+                                <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                                <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+                                <option value="new" {% if status_filter == 'new' %}selected{% endif %}>New</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Date Filter -->
+                        <div class="col-md-2">
+                            <label for="date" class="form-label">Date</label>
+                            <select class="form-select" id="date" name="date">
+                                <option value="">All Time</option>
+                                <option value="today" {% if date_filter == 'today' %}selected{% endif %}>Today</option>
+                                <option value="week" {% if date_filter == 'week' %}selected{% endif %}>This Week</option>
+                                <option value="month" {% if date_filter == 'month' %}selected{% endif %}>This Month</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Unread Filter -->
+                        <div class="col-md-2">
+                            <label for="unread" class="form-label">Messages</label>
+                            <select class="form-select" id="unread" name="unread">
+                                <option value="">All Messages</option>
+                                <option value="true" {% if unread_filter == 'true' %}selected{% endif %}>Unread Only</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Filter Buttons -->
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                                <a href="{% url 'users:admin_leads_list' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leads Table -->
+    <div class="container-fluid px-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="bg-light rounded p-4">
+                    {% if page_obj %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Contact Info</th>
+                                        <th>Session Details</th>
+                                        <th>Messages</th>
+                                        <th>Status</th>
+                                        <th>Last Activity</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for lead in page_obj %}
+                                        <tr class="{% if lead.unread_count > 0 %}table-warning{% endif %}">
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm bg-primary rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                        <i class="fas fa-user text-white"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0">{{ lead.name|default:"Anonymous" }}</h6>
+                                                        {% if lead.email %}
+                                                            <small class="text-muted">{{ lead.email }}</small><br>
+                                                        {% endif %}
+                                                        {% if lead.phone %}
+                                                            <small class="text-muted">{{ lead.phone }}</small>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <small class="text-muted">Session ID:</small><br>
+                                                    <code class="small">{{ lead.session_id|truncatechars:12 }}</code><br>
+                                                    <small class="text-muted">Created: {{ lead.created_at|date:"M d, Y H:i" }}</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="text-center">
+                                                    <span class="badge bg-info">{{ lead.message_count }} total</span>
+                                                    {% if lead.unread_count > 0 %}
+                                                        <br><span class="badge bg-danger mt-1">{{ lead.unread_count }} unread</span>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex flex-column gap-1">
+                                                    {% if lead.status == 'active' %}
+                                                        <span class="badge bg-success">Active</span>
+                                                    {% elif lead.status == 'closed' %}
+                                                        <span class="badge bg-secondary">Closed</span>
+                                                    {% elif lead.status == 'archived' %}
+                                                        <span class="badge bg-dark">Archived</span>
+                                                    {% endif %}
+
+                                                    {% if lead.assigned_to %}
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-user-tie me-1"></i>{{ lead.assigned_to.get_full_name|default:lead.assigned_to.username }}
+                                                        </small>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {% if lead.last_message_time %}
+                                                    <small>{{ lead.last_message_time|timesince }} ago</small>
+                                                {% else %}
+                                                    <small class="text-muted">No messages</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="{% url 'users:admin_lead_detail' lead.session_id %}"
+                                                       class="btn btn-sm btn-outline-primary" title="View Chat">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+
+                                                    <!-- Status Dropdown -->
+                                                    <div class="btn-group" role="group">
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                                data-bs-toggle="dropdown" aria-expanded="false" title="Change Status">
+                                                            <i class="fas fa-cog"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li><h6 class="dropdown-header">Status</h6></li>
+                                                            <li><a class="dropdown-item" href="#" onclick="updateStatus('{{ lead.session_id }}', 'active')">
+                                                                <i class="fas fa-play text-success me-2"></i>Active
+                                                            </a></li>
+                                                            <li><a class="dropdown-item" href="#" onclick="updateStatus('{{ lead.session_id }}', 'closed')">
+                                                                <i class="fas fa-stop text-secondary me-2"></i>Closed
+                                                            </a></li>
+                                                            <li><a class="dropdown-item" href="#" onclick="updateStatus('{{ lead.session_id }}', 'archived')">
+                                                                <i class="fas fa-archive text-dark me-2"></i>Archived
+                                                            </a></li>
+                                                            <li><hr class="dropdown-divider"></li>
+                                                            <li><h6 class="dropdown-header">Assign To</h6></li>
+                                                            <li><a class="dropdown-item" href="#" onclick="assignTo('{{ lead.session_id }}', 'unassign')">
+                                                                <i class="fas fa-user-slash text-muted me-2"></i>Unassign
+                                                            </a></li>
+                                                            <li><a class="dropdown-item" href="#" onclick="assignTo('{{ lead.session_id }}', '{{ request.user.id }}')">
+                                                                <i class="fas fa-user text-primary me-2"></i>Assign to Me
+                                                            </a></li>
+                                                        </ul>
+                                                    </div>
+
+                                                    {% if lead.unread_count > 0 %}
+                                                        <button class="btn btn-sm btn-outline-warning"
+                                                                onclick="markAsRead('{{ lead.session_id }}')" title="Mark as Read">
+                                                            <i class="fas fa-envelope-open"></i>
+                                                        </button>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if page_obj.has_other_pages %}
+                            <nav aria-label="Leads pagination" class="mt-4">
+                                <ul class="pagination justify-content-center">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if unread_filter %}&unread={{ unread_filter }}{% endif %}">First</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if unread_filter %}&unread={{ unread_filter }}{% endif %}">Previous</a>
+                                        </li>
+                                    {% endif %}
+
+                                    <li class="page-item active">
+                                        <span class="page-link">
+                                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                                        </span>
+                                    </li>
+
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if unread_filter %}&unread={{ unread_filter }}{% endif %}">Next</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if unread_filter %}&unread={{ unread_filter }}{% endif %}">Last</a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No leads found</h5>
+                            <p class="text-muted">No chat conversations match your current filters.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function refreshLeads() {
+    location.reload();
+}
+
+function markAsRead(sessionId) {
+    // This would be implemented to mark messages as read via AJAX
+    console.log('Mark as read:', sessionId);
+}
+
+function updateStatus(sessionId, status) {
+    if (!confirm(`Are you sure you want to change the status to ${status}?`)) {
+        return;
+    }
+
+    fetch('{% url "users:admin_lead_status_update" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            session_id: sessionId,
+            status: status
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error updating status: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating status');
+    });
+}
+
+function assignTo(sessionId, userId) {
+    const action = userId === 'unassign' ? 'unassign this chat' : 'assign this chat to you';
+
+    if (!confirm(`Are you sure you want to ${action}?`)) {
+        return;
+    }
+
+    fetch('{% url "users:admin_lead_status_update" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            session_id: sessionId,
+            assigned_to: userId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error updating assignment: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating assignment');
+    });
+}
+</script>
+{% endblock %}

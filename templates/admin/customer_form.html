@@ -1,0 +1,461 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .modern-form {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    .form-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 20px 20px 0 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .form-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+    }
+
+    .form-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .form-header p {
+        margin: 0.5rem 0 0 0;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+    }
+
+    .modern-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    .modern-card:hover {
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        transform: translateY(-2px);
+    }
+
+    .card-header-modern {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-bottom: 2px solid #e2e8f0;
+        padding: 1.5rem;
+        font-weight: 600;
+        color: #334155;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .card-header-modern i {
+        color: #6366f1;
+        font-size: 1.2rem;
+    }
+
+    .form-control-modern {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 0.875rem 1rem;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: #fafbfc;
+    }
+
+    .form-control-modern:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        background: white;
+        outline: none;
+    }
+
+    .form-label-modern {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-modern-primary {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        border: none;
+        border-radius: 12px;
+        padding: 0.875rem 2rem;
+        font-weight: 600;
+        color: white;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-modern-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        color: white;
+    }
+
+    .btn-modern-secondary {
+        background: white;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 0.875rem 2rem;
+        font-weight: 600;
+        color: #64748b;
+        transition: all 0.3s ease;
+    }
+
+    .btn-modern-secondary:hover {
+        border-color: #cbd5e1;
+        background: #f8fafc;
+        color: #475569;
+        transform: translateY(-1px);
+    }
+
+    .breadcrumb-modern {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border-radius: 50px;
+        padding: 0.75rem 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .breadcrumb-modern a {
+        color: #6366f1;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .breadcrumb-modern a:hover {
+        color: #4f46e5;
+    }
+
+    .client-type-info {
+        background: #f0f4ff;
+        border: 1px solid #c7d2fe;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+
+    .client-type-info h6 {
+        color: #4338ca;
+        margin-bottom: 0.5rem;
+    }
+
+    .client-type-info p {
+        color: #6366f1;
+        margin: 0;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="modern-form">
+    <div class="container-fluid">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb-modern">
+            <a href="{% url 'users:admin_customers_list' %}">
+                <i class="fas fa-home me-2"></i>Customers
+            </a>
+            <span class="mx-2 text-muted">/</span>
+            <span class="text-muted">{{ action }} Customer</span>
+        </nav>
+
+        <div class="row justify-content-center">
+            <div class="col-12 col-xl-8">
+                <div class="form-container">
+                    <!-- Header -->
+                    <div class="form-header">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h1>
+                                    <i class="fas fa-users me-3"></i>{{ title }}
+                                </h1>
+                                <p class="mb-0">Manage customer information and contact details</p>
+                            </div>
+                            <a href="{% url 'users:admin_customers_list' %}" class="btn btn-light btn-lg">
+                                <i class="fas fa-arrow-left me-2"></i>Back
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Messages -->
+                    {% if messages %}
+                        <div class="p-4">
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show border-0 rounded-3" role="alert" style="box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <form method="post" class="p-4">
+                        {% csrf_token %}
+
+                        <div class="row g-4">
+                            <!-- Main Content -->
+                            <div class="col-lg-8">
+                                <!-- Basic Information -->
+                                <div class="modern-card mb-4">
+                                    <div class="card-header-modern">
+                                        <i class="fas fa-info-circle"></i>
+                                        <span>Basic Information</span>
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="row g-4">
+                                            <div class="col-md-6">
+                                                <label for="{{ form.name.id_for_label }}" class="form-label-modern">
+                                                    <i class="fas fa-user me-2"></i>{{ form.name.label }} *
+                                                </label>
+                                                <input type="text" class="form-control-modern" name="{{ form.name.name }}"
+                                                       id="{{ form.name.id_for_label }}" value="{{ form.name.value|default:'' }}"
+                                                       placeholder="Enter full name or company name" required>
+                                                {% if form.name.errors %}
+                                                    <div class="text-danger small mt-2">
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.name.errors.0 }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="{{ form.client_type.id_for_label }}" class="form-label-modern">
+                                                    <i class="fas fa-tag me-2"></i>{{ form.client_type.label }} *
+                                                </label>
+                                                <select class="form-control-modern" name="{{ form.client_type.name }}" id="{{ form.client_type.id_for_label }}" required>
+                                                    {% for choice in form.client_type.field.choices %}
+                                                        <option value="{{ choice.0 }}" {% if form.client_type.value == choice.0 %}selected{% endif %}>
+                                                            {{ choice.1 }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                                {% if form.client_type.errors %}
+                                                    <div class="text-danger small mt-2">
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.client_type.errors.0 }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <div class="row g-4 mt-2">
+                                            <div class="col-md-6">
+                                                <label for="{{ form.email.id_for_label }}" class="form-label-modern">
+                                                    <i class="fas fa-envelope me-2"></i>{{ form.email.label }} *
+                                                </label>
+                                                <input type="email" class="form-control-modern" name="{{ form.email.name }}"
+                                                       id="{{ form.email.id_for_label }}" value="{{ form.email.value|default:'' }}"
+                                                       placeholder="client@example.com" required>
+                                                {% if form.email.errors %}
+                                                    <div class="text-danger small mt-2">
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.email.errors.0 }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="{{ form.phone.id_for_label }}" class="form-label-modern">
+                                                    <i class="fas fa-phone me-2"></i>{{ form.phone.label }} *
+                                                </label>
+                                                <input type="text" class="form-control-modern" name="{{ form.phone.name }}"
+                                                       id="{{ form.phone.id_for_label }}" value="{{ form.phone.value|default:'' }}"
+                                                       placeholder="+254 700 000 000" required>
+                                                {% if form.phone.errors %}
+                                                    <div class="text-danger small mt-2">
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.phone.errors.0 }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-4">
+                                            <label for="{{ form.company_name.id_for_label }}" class="form-label-modern">
+                                                <i class="fas fa-building me-2"></i>{{ form.company_name.label }}
+                                            </label>
+                                            <input type="text" class="form-control-modern" name="{{ form.company_name.name }}"
+                                                   id="{{ form.company_name.id_for_label }}" value="{{ form.company_name.value|default:'' }}"
+                                                   placeholder="Company name (if applicable)">
+                                            {% if form.company_name.errors %}
+                                                <div class="text-danger small mt-2">
+                                                    <i class="fas fa-exclamation-circle me-1"></i>{{ form.company_name.errors.0 }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="mt-4">
+                                            <label for="{{ form.address.id_for_label }}" class="form-label-modern">
+                                                <i class="fas fa-map-marker-alt me-2"></i>{{ form.address.label }}
+                                            </label>
+                                            <textarea class="form-control-modern" name="{{ form.address.name }}"
+                                                      id="{{ form.address.id_for_label }}" rows="3"
+                                                      placeholder="Complete address including city and postal code">{{ form.address.value|default:'' }}</textarea>
+                                            {% if form.address.errors %}
+                                                <div class="text-danger small mt-2">
+                                                    <i class="fas fa-exclamation-circle me-1"></i>{{ form.address.errors.0 }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Additional Information -->
+                                <div class="modern-card mb-4">
+                                    <div class="card-header-modern">
+                                        <i class="fas fa-cogs"></i>
+                                        <span>Additional Information</span>
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="mb-4">
+                                            <label for="{{ form.preferred_contact_method.id_for_label }}" class="form-label-modern">
+                                                <i class="fas fa-phone-alt me-2"></i>{{ form.preferred_contact_method.label }}
+                                            </label>
+                                            <select class="form-control-modern" name="{{ form.preferred_contact_method.name }}" id="{{ form.preferred_contact_method.id_for_label }}">
+                                                {% for choice in form.preferred_contact_method.field.choices %}
+                                                    <option value="{{ choice.0 }}" {% if form.preferred_contact_method.value == choice.0 %}selected{% endif %}>
+                                                        {{ choice.1 }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                            {% if form.preferred_contact_method.errors %}
+                                                <div class="text-danger small mt-2">
+                                                    <i class="fas fa-exclamation-circle me-1"></i>{{ form.preferred_contact_method.errors.0 }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="mb-0">
+                                            <label for="{{ form.notes.id_for_label }}" class="form-label-modern">
+                                                <i class="fas fa-sticky-note me-2"></i>{{ form.notes.label }}
+                                            </label>
+                                            <textarea class="form-control-modern" name="{{ form.notes.name }}"
+                                                      id="{{ form.notes.id_for_label }}" rows="4"
+                                                      placeholder="Internal notes about this client">{{ form.notes.value|default:'' }}</textarea>
+                                            <div class="form-text mt-2 text-muted">
+                                                <i class="fas fa-info-circle me-1"></i>These notes are only visible to staff members
+                                            </div>
+                                            {% if form.notes.errors %}
+                                                <div class="text-danger small mt-2">
+                                                    <i class="fas fa-exclamation-circle me-1"></i>{{ form.notes.errors.0 }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sidebar -->
+                            <div class="col-lg-4">
+                                <!-- Action Buttons -->
+                                <div class="modern-card sticky-top" style="top: 2rem;">
+                                    <div class="p-4">
+                                        <button type="submit" class="btn-modern-primary w-100 mb-3">
+                                            <i class="fas fa-save me-2"></i>{{ action }} Customer
+                                        </button>
+                                        <a href="{% url 'users:admin_customers_list' %}" class="btn-modern-secondary w-100">
+                                            <i class="fas fa-arrow-left me-2"></i>Back to Customers
+                                        </a>
+
+                                        <div class="mt-4 p-3 bg-light rounded-3">
+                                            <small class="text-muted">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                <strong>Tip:</strong> All fields marked with * are required
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Client Type Information -->
+                                <div class="modern-card mt-4">
+                                    <div class="p-4">
+                                        <div class="client-type-info">
+                                            <h6><i class="fas fa-lightbulb me-2"></i>Client Types</h6>
+                                            <p><strong>Individual:</strong> Personal customers<br>
+                                            <strong>Business:</strong> Companies and organizations<br>
+                                            <strong>Government:</strong> Government entities<br>
+                                            <strong>NGO:</strong> Non-profit organizations</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Enhanced form validation
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const requiredFields = form.querySelectorAll('[required]');
+            let hasErrors = false;
+
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    hasErrors = true;
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+
+            if (hasErrors) {
+                e.preventDefault();
+                // Scroll to first error
+                const firstError = form.querySelector('.is-invalid');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstError.focus();
+                }
+            }
+        });
+    }
+
+    // Auto-resize textareas
+    const textareas = document.querySelectorAll('textarea');
+    textareas.forEach(textarea => {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    });
+});
+</script>
+{% endblock %}

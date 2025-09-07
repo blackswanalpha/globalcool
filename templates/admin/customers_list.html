@@ -1,0 +1,375 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .filter-section {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e5e7eb;
+    }
+    
+    .customer-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+    
+    .customer-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        border-color: #6366f1;
+    }
+    
+    .client-type-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .type-individual { background: #dbeafe; color: #1e40af; }
+    .type-business { background: #d1fae5; color: #065f46; }
+    .type-government { background: #fef3c7; color: #92400e; }
+    .type-ngo { background: #e0e7ff; color: #3730a3; }
+    
+    .contact-method-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        background: #f3f4f6;
+        color: #374151;
+    }
+    
+    .customer-meta {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .customer-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+    
+    .btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    
+    .btn-primary-sm {
+        background: #6366f1;
+        color: white;
+        border: 1px solid #6366f1;
+    }
+    
+    .btn-primary-sm:hover {
+        background: #4f46e5;
+        color: white;
+        transform: translateY(-1px);
+    }
+    
+    .btn-secondary-sm {
+        background: white;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+    
+    .btn-secondary-sm:hover {
+        background: #f9fafb;
+        color: #374151;
+        border-color: #9ca3af;
+    }
+    
+    .btn-danger-sm {
+        background: #ef4444;
+        color: white;
+        border: 1px solid #ef4444;
+    }
+    
+    .btn-danger-sm:hover {
+        background: #dc2626;
+        color: white;
+        transform: translateY(-1px);
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid #e5e7eb;
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #6366f1;
+    }
+    
+    .stat-label {
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid #e5e7eb;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #d1d5db;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Include Enhanced Sidebar -->
+{% include 'components/admin_sidebar.html' %}
+
+<!-- Content Start -->
+<div class="content">
+    <!-- Include Enhanced Header -->
+    {% include 'components/admin_header.html' %}
+
+    <!-- Page Header -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h1 class="h3 mb-0 text-gray-800">
+                            <i class="fas fa-users me-2 text-primary"></i>{{ title }}
+                        </h1>
+                        <p class="text-muted mb-0">Manage customer information and relationships</p>
+                    </div>
+                    <a href="{% url 'users:admin_customer_add' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add New Customer
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="container-fluid px-4">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.total_customers }}</div>
+                <div class="stat-label">Total Customers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.individual_customers }}</div>
+                <div class="stat-label">Individual Clients</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.business_customers }}</div>
+                <div class="stat-label">Business Clients</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.new_this_month }}</div>
+                <div class="stat-label">New This Month</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">KSh {{ stats.total_revenue|floatformat:0 }}</div>
+                <div class="stat-label">Total Revenue</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="container-fluid px-4">
+        <div class="filter-section">
+            <form method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="search" class="form-control" value="{{ search_query }}" 
+                           placeholder="Search customers...">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Client Type</label>
+                    <select name="client_type" class="form-select">
+                        <option value="">All Types</option>
+                        {% for value, label in client_type_choices %}
+                        <option value="{{ value }}" {% if client_type_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Contact Method</label>
+                    <select name="contact_method" class="form-select">
+                        <option value="">All Methods</option>
+                        {% for value, label in contact_method_choices %}
+                        <option value="{{ value }}" {% if contact_method_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Date Filter</label>
+                    <select name="date_filter" class="form-select">
+                        <option value="">All Time</option>
+                        <option value="today" {% if date_filter == 'today' %}selected{% endif %}>Today</option>
+                        <option value="week" {% if date_filter == 'week' %}selected{% endif %}>This Week</option>
+                        <option value="month" {% if date_filter == 'month' %}selected{% endif %}>This Month</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Sort By</label>
+                    <select name="sort" class="form-select">
+                        <option value="-created_at" {% if sort_by == '-created_at' %}selected{% endif %}>Newest First</option>
+                        <option value="created_at" {% if sort_by == 'created_at' %}selected{% endif %}>Oldest First</option>
+                        <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Name A-Z</option>
+                        <option value="-name" {% if sort_by == '-name' %}selected{% endif %}>Name Z-A</option>
+                        <option value="-total_spent" {% if sort_by == '-total_spent' %}selected{% endif %}>Highest Spent</option>
+                        <option value="-total_bookings" {% if sort_by == '-total_bookings' %}selected{% endif %}>Most Bookings</option>
+                    </select>
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">Filter</button>
+                    <a href="{% url 'users:admin_customers_list' %}" class="btn btn-outline-secondary">Clear</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Customers List -->
+    <div class="container-fluid px-4">
+        {% if page_obj %}
+        <div class="row">
+            {% for customer in page_obj %}
+            <div class="col-12">
+                <div class="customer-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center mb-2">
+                                <h5 class="mb-0 me-3">{{ customer.name }}</h5>
+                                <span class="client-type-badge type-{{ customer.client_type }}">{{ customer.get_client_type_display }}</span>
+                                {% if customer.preferred_contact_method %}
+                                <span class="contact-method-badge ms-2">{{ customer.get_preferred_contact_method_display }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="customer-meta">
+                                <span><i class="fas fa-envelope me-1"></i>{{ customer.email }}</span>
+                                <span><i class="fas fa-phone me-1"></i>{{ customer.phone }}</span>
+                                {% if customer.company_name %}
+                                <span><i class="fas fa-building me-1"></i>{{ customer.company_name }}</span>
+                                {% endif %}
+                                <span><i class="fas fa-calendar me-1"></i>{{ customer.created_at|date:"M d, Y" }}</span>
+                            </div>
+                            
+                            <div class="customer-meta mt-2">
+                                <span><i class="fas fa-calendar-check me-1"></i>{{ customer.bookings_count }} Bookings</span>
+                                <span><i class="fas fa-question-circle me-1"></i>{{ customer.inquiries_count }} Inquiries</span>
+                                <span><i class="fas fa-file-invoice me-1"></i>{{ customer.quotations_count }} Quotations</span>
+                                <span><i class="fas fa-coins me-1"></i>KSh {{ customer.total_spent|floatformat:0 }} Spent</span>
+                            </div>
+                        </div>
+                        
+                        <div class="customer-actions">
+                            <a href="{% url 'users:admin_customer_view' customer.id %}" class="btn-sm btn-primary-sm">
+                                <i class="fas fa-eye me-1"></i>View
+                            </a>
+                            <a href="{% url 'users:admin_customer_edit' customer.id %}" class="btn-sm btn-secondary-sm">
+                                <i class="fas fa-edit me-1"></i>Edit
+                            </a>
+                            <a href="{% url 'users:admin_customer_delete' customer.id %}" class="btn-sm btn-danger-sm">
+                                <i class="fas fa-trash me-1"></i>Delete
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Customers pagination" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if client_type_filter %}&client_type={{ client_type_filter }}{% endif %}{% if contact_method_filter %}&contact_method={{ contact_method_filter }}{% endif %}{% if date_filter %}&date_filter={{ date_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if client_type_filter %}&client_type={{ client_type_filter }}{% endif %}{% if contact_method_filter %}&contact_method={{ contact_method_filter }}{% endif %}{% if date_filter %}&date_filter={{ date_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">Previous</a>
+                    </li>
+                {% endif %}
+                
+                <li class="page-item active">
+                    <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                </li>
+                
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if client_type_filter %}&client_type={{ client_type_filter }}{% endif %}{% if contact_method_filter %}&contact_method={{ contact_method_filter }}{% endif %}{% if date_filter %}&date_filter={{ date_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if client_type_filter %}&client_type={{ client_type_filter }}{% endif %}{% if contact_method_filter %}&contact_method={{ contact_method_filter }}{% endif %}{% if date_filter %}&date_filter={{ date_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">Last</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-users"></i>
+            <h4 class="text-muted">No Customers Found</h4>
+            <p class="text-muted">No customers match your current filters.</p>
+            <a href="{% url 'users:admin_customers_list' %}" class="btn btn-primary me-2">Clear Filters</a>
+            <a href="{% url 'users:admin_customer_add' %}" class="btn btn-outline-primary">Add First Customer</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Footer -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="bg-light rounded-top p-4">
+            <div class="row">
+                <div class="col-12 col-sm-6 text-center text-sm-start">
+                    &copy; <a href="{% url 'core:home' %}">Global Cool-Light E.A LTD</a>, All Right Reserved.
+                </div>
+                <div class="col-12 col-sm-6 text-center text-sm-end">
+                    Designed By <a href="#">Global Cool-Light Team</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

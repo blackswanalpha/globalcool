@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmed - Global Cool-Light E.A LTD</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .email-container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #28a745;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .logo {
+            color: #004AAD;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .status-update {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .status-icon {
+            font-size: 48px;
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+        .status-title {
+            color: #155724;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .status-message {
+            color: #155724;
+            font-size: 16px;
+        }
+        .booking-details {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        .detail-value {
+            color: #212529;
+        }
+        .preparation-tips {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .preparation-tips h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+        .contact-info {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin: 10px 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">❄️ Global Cool-Light E.A LTD</div>
+        </div>
+
+        <!-- Status Update -->
+        <div class="status-update">
+            <div class="status-icon">✅</div>
+            <div class="status-title">Booking Confirmed!</div>
+            <div class="status-message">Your service appointment has been confirmed and scheduled.</div>
+        </div>
+
+        <p>Dear {{ booking.contact_name }},</p>
+        
+        <p>Great news! Your booking has been confirmed by our team. We're all set to provide you with excellent HVAC service.</p>
+
+        <!-- Booking Details -->
+        <div class="booking-details">
+            <h3 style="color: #004AAD; margin-top: 0;">Confirmed Appointment Details</h3>
+            
+            <div class="detail-row">
+                <span class="detail-label">Booking ID:</span>
+                <span class="detail-value"><strong>{{ booking.booking_id.hex|slice:":8"|upper }}</strong></span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Service:</span>
+                <span class="detail-value">{{ booking.service.name }}</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Date:</span>
+                <span class="detail-value"><strong>{{ booking.preferred_date|date:"F d, Y" }}</strong></span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Time:</span>
+                <span class="detail-value"><strong>{{ booking.get_preferred_time_slot_display }}</strong></span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Location:</span>
+                <span class="detail-value">{{ booking.location_address }}</span>
+            </div>
+            
+            {% if booking.assigned_technician %}
+            <div class="detail-row">
+                <span class="detail-label">Assigned Technician:</span>
+                <span class="detail-value">{{ booking.assigned_technician.get_full_name|default:booking.assigned_technician.username }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Preparation Tips -->
+        <div class="preparation-tips">
+            <h3>📋 Preparation Tips</h3>
+            <ul style="margin: 0; padding-left: 20px;">
+                <li>Please ensure easy access to your HVAC system</li>
+                <li>Clear the area around the equipment</li>
+                <li>Have any relevant documentation ready (warranties, previous service records)</li>
+                <li>Someone 18+ should be present during the service</li>
+                <li>Secure any pets that might interfere with the work</li>
+            </ul>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="contact-info">
+            <h3 style="color: #004AAD;">Need to Reschedule or Have Questions?</h3>
+            <div style="margin: 10px 0;">
+                <strong>📞 Phone:</strong> +254 123 456 789
+            </div>
+            <div style="margin: 10px 0;">
+                <strong>📧 Email:</strong> info@globalcool-light.com
+            </div>
+            <div style="margin: 10px 0;">
+                <strong>🚨 Emergency:</strong> 24/7 Emergency Service Available
+            </div>
+        </div>
+
+        <!-- Action Button -->
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="#" class="btn">Contact Us if Needed</a>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>We look forward to serving you!</p>
+            <p>This is an automated email. Please do not reply directly to this message.</p>
+            <p>&copy; {{ current_year|default:"2024" }} Global Cool-Light E.A LTD. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

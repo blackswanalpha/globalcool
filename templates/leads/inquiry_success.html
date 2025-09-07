@@ -1,0 +1,335 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Inquiry Submitted - {{ site_settings.company_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .success-container {
+        background: white;
+        border-radius: 16px;
+        padding: 3rem;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .success-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .inquiry-details {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 2rem;
+        margin: 2rem 0;
+        text-align: left;
+    }
+    
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+    
+    .detail-label {
+        font-weight: 600;
+        color: #475569;
+        min-width: 120px;
+    }
+    
+    .detail-value {
+        color: #1e293b;
+        font-weight: 500;
+        flex: 1;
+        text-align: right;
+    }
+    
+    .inquiry-id {
+        background: linear-gradient(135deg, #004AAD 0%, #00AEEF 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-family: monospace;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+    
+    .next-steps {
+        background: #fef3c7;
+        border: 1px solid #f59e0b;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+    }
+    
+    .next-steps h3 {
+        color: #92400e;
+        margin-bottom: 1rem;
+    }
+    
+    .next-steps ul {
+        text-align: left;
+        color: #78350f;
+    }
+    
+    .next-steps li {
+        margin-bottom: 0.5rem;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+    }
+    
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: transform 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #004AAD 0%, #00AEEF 100%);
+        color: white;
+    }
+    
+    .btn-secondary {
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid #cbd5e1;
+    }
+    
+    .contact-info {
+        background: #f0f9ff;
+        border: 1px solid #0ea5e9;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+    }
+    
+    .contact-info h3 {
+        color: #0c4a6e;
+        margin-bottom: 1rem;
+    }
+    
+    .contact-methods {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .contact-method {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #0369a1;
+    }
+    
+    .message-preview {
+        background: #f8fafc;
+        border-left: 4px solid #004AAD;
+        padding: 1rem;
+        margin: 1rem 0;
+        font-style: italic;
+        color: #475569;
+        max-height: 100px;
+        overflow-y: auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-12">
+    <div class="container mx-auto px-4">
+        
+        <div class="success-container">
+            <!-- Success Icon -->
+            <div class="success-icon">
+                <i class="fas fa-paper-plane text-white text-3xl"></i>
+            </div>
+            
+            <!-- Success Message -->
+            <h1 class="text-3xl font-heading font-bold text-gray-900 mb-4">
+                Inquiry Submitted Successfully!
+            </h1>
+            
+            <p class="text-lg text-gray-600 mb-6">
+                Thank you for your inquiry. We have received your message and will respond within 24 hours.
+            </p>
+            
+            {% if inquiry %}
+            <!-- Inquiry Details -->
+            <div class="inquiry-details">
+                <h3 class="text-xl font-semibold text-gray-900 mb-4 text-center">Inquiry Details</h3>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Reference ID:</span>
+                    <span class="inquiry-id">{{ inquiry.inquiry_id.hex|slice:":8"|upper }}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Subject:</span>
+                    <span class="detail-value">{{ inquiry.subject }}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Name:</span>
+                    <span class="detail-value">{{ inquiry.contact_name }}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value">{{ inquiry.contact_email }}</span>
+                </div>
+                
+                {% if inquiry.contact_phone %}
+                <div class="detail-row">
+                    <span class="detail-label">Phone:</span>
+                    <span class="detail-value">{{ inquiry.contact_phone }}</span>
+                </div>
+                {% endif %}
+                
+                {% if inquiry.service %}
+                <div class="detail-row">
+                    <span class="detail-label">Service:</span>
+                    <span class="detail-value">{{ inquiry.service.name }}</span>
+                </div>
+                {% endif %}
+                
+                <div class="detail-row">
+                    <span class="detail-label">Priority:</span>
+                    <span class="detail-value">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                            {% if inquiry.priority == 'urgent' %}bg-red-100 text-red-800
+                            {% elif inquiry.priority == 'high' %}bg-orange-100 text-orange-800
+                            {% elif inquiry.priority == 'normal' %}bg-blue-100 text-blue-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ inquiry.get_priority_display }}
+                        </span>
+                    </span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Status:</span>
+                    <span class="detail-value">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            {{ inquiry.get_status_display }}
+                        </span>
+                    </span>
+                </div>
+                
+                {% if inquiry.message %}
+                <div class="detail-row">
+                    <span class="detail-label">Message:</span>
+                    <div class="detail-value">
+                        <div class="message-preview">
+                            {{ inquiry.message|truncatewords:50 }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            <!-- Next Steps -->
+            <div class="next-steps">
+                <h3 class="text-lg font-semibold flex items-center">
+                    <i class="fas fa-clock mr-2"></i>
+                    What Happens Next?
+                </h3>
+                <ul class="space-y-2">
+                    <li><i class="fas fa-envelope mr-2"></i>You'll receive an email confirmation shortly</li>
+                    <li><i class="fas fa-user-tie mr-2"></i>Our expert team will review your inquiry</li>
+                    <li><i class="fas fa-phone mr-2"></i>We'll contact you within 24 hours with a response</li>
+                    <li><i class="fas fa-file-invoice-dollar mr-2"></i>If applicable, we'll provide a detailed quote</li>
+                </ul>
+            </div>
+            
+            <!-- Contact Information -->
+            <div class="contact-info">
+                <h3 class="text-lg font-semibold flex items-center justify-center">
+                    <i class="fas fa-headset mr-2"></i>
+                    Need Immediate Assistance?
+                </h3>
+                <p class="text-sm text-blue-700 mb-3">
+                    For urgent matters or immediate assistance, contact us directly:
+                </p>
+                
+                <div class="contact-methods">
+                    <div class="contact-method">
+                        <i class="fas fa-phone"></i>
+                        <span>+254 700 000 000</span>
+                    </div>
+                    <div class="contact-method">
+                        <i class="fas fa-envelope"></i>
+                        <span>info@globalcool-light.com</span>
+                    </div>
+                    <div class="contact-method">
+                        <i class="fab fa-whatsapp"></i>
+                        <span>WhatsApp Support</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="{% url 'core:home' %}" class="btn btn-primary">
+                    <i class="fas fa-home"></i>
+                    Back to Home
+                </a>
+                <a href="{% url 'services:list' %}" class="btn btn-secondary">
+                    <i class="fas fa-tools"></i>
+                    View Our Services
+                </a>
+                <a href="{% url 'leads:booking_create' %}" class="btn btn-secondary">
+                    <i class="fas fa-calendar-check"></i>
+                    Book a Service
+                </a>
+            </div>
+            
+            <!-- Email Confirmation Note -->
+            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p class="text-sm text-blue-800">
+                    <i class="fas fa-envelope mr-2"></i>
+                    A confirmation email has been sent to your email address with your inquiry details and reference number.
+                    Please check your inbox and spam folder.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

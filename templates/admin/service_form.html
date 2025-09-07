@@ -1,0 +1,783 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .modern-form {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    .form-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 20px 20px 0 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .form-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+    }
+
+    .form-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .form-header p {
+        margin: 0.5rem 0 0 0;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+    }
+
+    .modern-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    .modern-card:hover {
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        transform: translateY(-2px);
+    }
+
+    .card-header-modern {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-bottom: 2px solid #e2e8f0;
+        padding: 1.5rem;
+        font-weight: 600;
+        color: #334155;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .card-header-modern i {
+        color: #6366f1;
+        font-size: 1.2rem;
+    }
+
+    .form-control-modern {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 0.875rem 1rem;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: #fafbfc;
+    }
+
+    .form-control-modern:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        background: white;
+        outline: none;
+    }
+
+    .form-label-modern {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-modern-primary {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        border: none;
+        border-radius: 12px;
+        padding: 0.875rem 2rem;
+        font-weight: 600;
+        color: white;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-modern-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        color: white;
+    }
+
+    .btn-modern-secondary {
+        background: white;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 0.875rem 2rem;
+        font-weight: 600;
+        color: #64748b;
+        transition: all 0.3s ease;
+    }
+
+    .btn-modern-secondary:hover {
+        border-color: #cbd5e1;
+        background: #f8fafc;
+        color: #475569;
+        transform: translateY(-1px);
+    }
+
+    .status-toggle {
+        background: #f1f5f9;
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 2px solid #e2e8f0;
+    }
+
+    .form-check-modern {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+    }
+
+    .form-check-modern:hover {
+        border-color: #cbd5e1;
+        background: #fafbfc;
+    }
+
+    .form-check-modern input[type="checkbox"] {
+        width: 1.25rem;
+        height: 1.25rem;
+        accent-color: #6366f1;
+    }
+
+    .image-upload-area {
+        border: 2px dashed #cbd5e1;
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        background: #f8fafc;
+        transition: all 0.3s ease;
+    }
+
+    .image-upload-area:hover {
+        border-color: #6366f1;
+        background: #f0f4ff;
+    }
+
+    .breadcrumb-modern {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border-radius: 50px;
+        padding: 0.75rem 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .breadcrumb-modern a {
+        color: #6366f1;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .breadcrumb-modern a:hover {
+        color: #4f46e5;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="modern-form">
+    <div class="container-fluid">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb-modern">
+            <a href="{% url 'users:admin_services_products' %}">
+                <i class="fas fa-home me-2"></i>Services & Products
+            </a>
+            <span class="mx-2 text-muted">/</span>
+            <span class="text-muted">{{ action }} Service</span>
+        </nav>
+
+        <div class="row justify-content-center">
+            <div class="col-12 col-xl-10">
+                <div class="form-container">
+                    <!-- Header -->
+                    <div class="form-header">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h1>
+                                    <i class="fas fa-tools me-3"></i>{{ title }}
+                                </h1>
+                                <p class="mb-0">Create and manage professional HVAC services with detailed information and media</p>
+                            </div>
+                            <a href="{% url 'users:admin_services_products' %}" class="btn btn-light btn-lg">
+                                <i class="fas fa-arrow-left me-2"></i>Back
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Messages -->
+                    {% if messages %}
+                        <div class="p-4">
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show border-0 rounded-3" role="alert" style="box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data" class="p-4">
+                        {% csrf_token %}
+
+                        <div class="row g-4">
+                            <!-- Main Content -->
+                            <div class="col-lg-8">
+                                <!-- Basic Information -->
+                                <div class="modern-card mb-4">
+                                    <div class="card-header-modern">
+                                        <i class="fas fa-info-circle"></i>
+                                        <span>Basic Information</span>
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="row g-4">
+                                            <div class="col-md-6">
+                                                <label for="{{ form.category.id_for_label }}" class="form-label-modern">
+                                                    <i class="fas fa-tag me-2"></i>Category *
+                                                </label>
+                                                <select class="form-control-modern" name="{{ form.category.name }}" id="{{ form.category.id_for_label }}" required>
+                                                    <option value="">Select a category</option>
+                                                    {% for choice in form.category.field.queryset %}
+                                                        <option value="{{ choice.pk }}" {% if form.category.value == choice.pk %}selected{% endif %}>
+                                                            {{ choice.name }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                                {% if form.category.errors %}
+                                                    <div class="text-danger small mt-2">
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.category.errors.0 }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="{{ form.name.id_for_label }}" class="form-label-modern">
+                                                    <i class="fas fa-tools me-2"></i>Service Name *
+                                                </label>
+                                                <input type="text" class="form-control-modern" name="{{ form.name.name }}"
+                                                       id="{{ form.name.id_for_label }}" value="{{ form.name.value|default:'' }}"
+                                                       placeholder="Enter service name" required>
+                                                {% if form.name.errors %}
+                                                    <div class="text-danger small mt-2">
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.name.errors.0 }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-4">
+                                            <label for="{{ form.summary.id_for_label }}" class="form-label-modern">
+                                                <i class="fas fa-align-left me-2"></i>Summary
+                                            </label>
+                                            <textarea class="form-control-modern" name="{{ form.summary.name }}"
+                                                      id="{{ form.summary.id_for_label }}" rows="3"
+                                                      placeholder="Brief description for listings (max 500 characters)"
+                                                      maxlength="500">{{ form.summary.value|default:'' }}</textarea>
+                                            <div class="form-text mt-2 text-muted">
+                                                <i class="fas fa-info-circle me-1"></i>This will appear in service listings and search results
+                                            </div>
+                                            {% if form.summary.errors %}
+                                                <div class="text-danger small mt-2">
+                                                    <i class="fas fa-exclamation-circle me-1"></i>{{ form.summary.errors.0 }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="mt-4">
+                                            <label for="{{ form.description.id_for_label }}" class="form-label-modern">
+                                                <i class="fas fa-file-alt me-2"></i>Detailed Description
+                                            </label>
+                                            <div class="border rounded-3 p-3" style="background: #fafbfc;">
+                                                {{ form.description }}
+                                            </div>
+                                            {% if form.description.errors %}
+                                                <div class="text-danger small mt-2">
+                                                    <i class="fas fa-exclamation-circle me-1"></i>{{ form.description.errors.0 }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                </div>
+                            </div>
+
+                                <!-- Pricing -->
+                                <div class="modern-card mb-4">
+                                    <div class="card-header-modern">
+                                        <i class="fas fa-dollar-sign"></i>
+                                        <span>Pricing Information</span>
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="row g-4">
+                                            <div class="col-md-4">
+                                                <label for="{{ form.base_price_min.id_for_label }}" class="form-label-modern">
+                                                    <i class="fas fa-arrow-down me-2"></i>Minimum Price (KSh)
+                                                </label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-light border-end-0" style="border-radius: 12px 0 0 12px; border: 2px solid #e2e8f0; border-right: none;">
+                                                        <i class="fas fa-coins text-muted"></i>
+                                                    </span>
+                                                    <input type="number" class="form-control-modern border-start-0"
+                                                           name="{{ form.base_price_min.name }}" id="{{ form.base_price_min.id_for_label }}"
+                                                           value="{{ form.base_price_min.value|default:'' }}"
+                                                           placeholder="0.00" step="0.01" style="border-radius: 0 12px 12px 0;">
+                                                </div>
+                                                {% if form.base_price_min.errors %}
+                                                    <div class="text-danger small mt-2">
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.base_price_min.errors.0 }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="{{ form.base_price_max.id_for_label }}" class="form-label-modern">
+                                                    <i class="fas fa-arrow-up me-2"></i>Maximum Price (KSh)
+                                                </label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-light border-end-0" style="border-radius: 12px 0 0 12px; border: 2px solid #e2e8f0; border-right: none;">
+                                                        <i class="fas fa-coins text-muted"></i>
+                                                    </span>
+                                                    <input type="number" class="form-control-modern border-start-0"
+                                                           name="{{ form.base_price_max.name }}" id="{{ form.base_price_max.id_for_label }}"
+                                                           value="{{ form.base_price_max.value|default:'' }}"
+                                                           placeholder="0.00" step="0.01" style="border-radius: 0 12px 12px 0;">
+                                                </div>
+                                                {% if form.base_price_max.errors %}
+                                                    <div class="text-danger small mt-2">
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.base_price_max.errors.0 }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="{{ form.price_note.id_for_label }}" class="form-label-modern">
+                                                    <i class="fas fa-sticky-note me-2"></i>Price Note
+                                                </label>
+                                                <input type="text" class="form-control-modern"
+                                                       name="{{ form.price_note.name }}" id="{{ form.price_note.id_for_label }}"
+                                                       value="{{ form.price_note.value|default:'' }}"
+                                                       placeholder='e.g., "Starting from" or "Per unit"'>
+                                                {% if form.price_note.errors %}
+                                                    <div class="text-danger small mt-2">
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.price_note.errors.0 }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 p-3 bg-light rounded-3">
+                                            <small class="text-muted">
+                                                <i class="fas fa-lightbulb me-2"></i>
+                                                <strong>Tip:</strong> Set a price range to give customers an idea of service costs. Leave blank if pricing varies significantly.
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Service Details -->
+                                <div class="modern-card mb-4">
+                                    <div class="card-header-modern">
+                                        <i class="fas fa-cogs"></i>
+                                        <span>Service Details</span>
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="mb-4">
+                                            <label for="{{ form.duration_estimate.id_for_label }}" class="form-label-modern">
+                                                <i class="fas fa-clock me-2"></i>Duration Estimate
+                                            </label>
+                                            <input type="text" class="form-control-modern"
+                                                   name="{{ form.duration_estimate.name }}" id="{{ form.duration_estimate.id_for_label }}"
+                                                   value="{{ form.duration_estimate.value|default:'' }}"
+                                                   placeholder='e.g., "2-4 hours" or "1-2 days"'>
+                                            <div class="form-text mt-2 text-muted">
+                                                <i class="fas fa-info-circle me-1"></i>Estimated time to complete this service
+                                            </div>
+                                            {% if form.duration_estimate.errors %}
+                                                <div class="text-danger small mt-2">
+                                                    <i class="fas fa-exclamation-circle me-1"></i>{{ form.duration_estimate.errors.0 }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <label for="{{ form.features.id_for_label }}" class="form-label-modern">
+                                                <i class="fas fa-star me-2"></i>Key Features
+                                            </label>
+                                            <textarea class="form-control-modern" name="{{ form.features.name }}"
+                                                      id="{{ form.features.id_for_label }}" rows="4"
+                                                      placeholder="• Professional installation&#10;• Quality materials&#10;• 24/7 support&#10;• Warranty included">{{ form.features.value|default:'' }}</textarea>
+                                            <div class="form-text mt-2 text-muted">
+                                                <i class="fas fa-lightbulb me-1"></i>List key features and benefits, one per line (use • for bullet points)
+                                            </div>
+                                            {% if form.features.errors %}
+                                                <div class="text-danger small mt-2">
+                                                    <i class="fas fa-exclamation-circle me-1"></i>{{ form.features.errors.0 }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="mb-0">
+                                            <label for="{{ form.requirements.id_for_label }}" class="form-label-modern">
+                                                <i class="fas fa-clipboard-check me-2"></i>Requirements & Prerequisites
+                                            </label>
+                                            <textarea class="form-control-modern" name="{{ form.requirements.name }}"
+                                                      id="{{ form.requirements.id_for_label }}" rows="3"
+                                                      placeholder="• Access to electrical panel&#10;• Clear workspace area&#10;• Property owner permission">{{ form.requirements.value|default:'' }}</textarea>
+                                            <div class="form-text mt-2 text-muted">
+                                                <i class="fas fa-info-circle me-1"></i>List any requirements or preparations needed before service
+                                            </div>
+                                            {% if form.requirements.errors %}
+                                                <div class="text-danger small mt-2">
+                                                    <i class="fas fa-exclamation-circle me-1"></i>{{ form.requirements.errors.0 }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Images -->
+                                <div class="modern-card mb-4">
+                                    <div class="card-header-modern">
+                                        <i class="fas fa-images"></i>
+                                        <span>Service Images</span>
+                                    </div>
+                                    <div class="p-4">
+                                        {{ image_formset.management_form }}
+                                        <div id="image-formset">
+                                            {% for form in image_formset %}
+                                                <div class="modern-card mb-4" style="border: 2px solid #e2e8f0;">
+                                                    <div class="p-4">
+                                                        {% if form.instance.pk %}
+                                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                                <h6 class="mb-0 text-muted">Image {{ forloop.counter }}</h6>
+                                                                <div class="form-check-modern bg-danger text-white">
+                                                                    {{ form.DELETE }}
+                                                                    <label class="form-check-label text-white" for="{{ form.DELETE.id_for_label }}">
+                                                                        <i class="fas fa-trash me-2"></i>Delete
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        {% else %}
+                                                            <h6 class="mb-3 text-muted">New Image {{ forloop.counter }}</h6>
+                                                        {% endif %}
+
+                                                        <div class="row g-4">
+                                                            <div class="col-md-6">
+                                                                <label class="form-label-modern">
+                                                                    <i class="fas fa-image me-2"></i>Image File
+                                                                </label>
+                                                                <div class="image-upload-area">
+                                                                    {{ form.image }}
+                                                                    <div class="mt-2">
+                                                                        <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                                                                        <p class="text-muted mb-0">Click to upload or drag & drop</p>
+                                                                        <small class="text-muted">JPG, PNG, WebP up to 5MB</small>
+                                                                    </div>
+                                                                </div>
+                                                                {% if form.image.errors %}
+                                                                    <div class="text-danger small mt-2">
+                                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.image.errors.0 }}
+                                                                    </div>
+                                                                {% endif %}
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label-modern">
+                                                                        <i class="fas fa-tag me-2"></i>Image Title
+                                                                    </label>
+                                                                    <input type="text" class="form-control-modern"
+                                                                           name="{{ form.title.name }}" id="{{ form.title.id_for_label }}"
+                                                                           value="{{ form.title.value|default:'' }}"
+                                                                           placeholder="Enter image title">
+                                                                    {% if form.title.errors %}
+                                                                        <div class="text-danger small mt-2">
+                                                                            <i class="fas fa-exclamation-circle me-1"></i>{{ form.title.errors.0 }}
+                                                                        </div>
+                                                                    {% endif %}
+                                                                </div>
+
+                                                                <div class="mb-3">
+                                                                    <label class="form-label-modern">
+                                                                        <i class="fas fa-align-left me-2"></i>Description
+                                                                    </label>
+                                                                    <textarea class="form-control-modern" name="{{ form.description.name }}"
+                                                                              id="{{ form.description.id_for_label }}" rows="3"
+                                                                              placeholder="Describe what this image shows">{{ form.description.value|default:'' }}</textarea>
+                                                                    {% if form.description.errors %}
+                                                                        <div class="text-danger small mt-2">
+                                                                            <i class="fas fa-exclamation-circle me-1"></i>{{ form.description.errors.0 }}
+                                                                        </div>
+                                                                    {% endif %}
+                                                                </div>
+
+                                                                <div class="form-check-modern">
+                                                                    {{ form.is_featured }}
+                                                                    <label class="form-check-label" for="{{ form.is_featured.id_for_label }}">
+                                                                        <i class="fas fa-star me-2"></i>Set as Featured Image
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+
+                                        <div class="text-center mt-4">
+                                            <button type="button" class="btn btn-outline-primary" onclick="addImageForm()">
+                                                <i class="fas fa-plus me-2"></i>Add Another Image
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+
+                            <!-- Sidebar -->
+                            <div class="col-lg-4">
+                                <!-- Status Settings -->
+                                <div class="modern-card mb-4">
+                                    <div class="card-header-modern">
+                                        <i class="fas fa-toggle-on"></i>
+                                        <span>Status Settings</span>
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="status-toggle mb-4">
+                                            <div class="form-check-modern mb-3">
+                                                {{ form.is_active }}
+                                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                                    <i class="fas fa-eye me-2"></i>Active Service
+                                                </label>
+                                            </div>
+                                            <small class="text-muted">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                When active, this service will be visible to customers on your website
+                                            </small>
+                                        </div>
+
+                                        <div class="status-toggle">
+                                            <div class="form-check-modern mb-3">
+                                                {{ form.is_featured }}
+                                                <label class="form-check-label" for="{{ form.is_featured.id_for_label }}">
+                                                    <i class="fas fa-star me-2"></i>Featured Service
+                                                </label>
+                                            </div>
+                                            <small class="text-muted">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Featured services appear prominently on your homepage and service listings
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- SEO Optimization -->
+                                <div class="modern-card mb-4">
+                                    <div class="card-header-modern">
+                                        <i class="fas fa-search"></i>
+                                        <span>SEO Optimization</span>
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="mb-4">
+                                            <label for="{{ form.meta_title.id_for_label }}" class="form-label-modern">
+                                                <i class="fas fa-heading me-2"></i>Meta Title
+                                            </label>
+                                            <input type="text" class="form-control-modern"
+                                                   name="{{ form.meta_title.name }}" id="{{ form.meta_title.id_for_label }}"
+                                                   value="{{ form.meta_title.value|default:'' }}"
+                                                   placeholder="SEO-friendly title" maxlength="60">
+                                            <div class="d-flex justify-content-between mt-2">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-lightbulb me-1"></i>Appears in search results
+                                                </small>
+                                                <small class="text-muted">
+                                                    <span id="meta-title-count">0</span>/60
+                                                </small>
+                                            </div>
+                                            {% if form.meta_title.errors %}
+                                                <div class="text-danger small mt-2">
+                                                    <i class="fas fa-exclamation-circle me-1"></i>{{ form.meta_title.errors.0 }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="mb-0">
+                                            <label for="{{ form.meta_description.id_for_label }}" class="form-label-modern">
+                                                <i class="fas fa-align-left me-2"></i>Meta Description
+                                            </label>
+                                            <textarea class="form-control-modern" name="{{ form.meta_description.name }}"
+                                                      id="{{ form.meta_description.id_for_label }}" rows="3"
+                                                      placeholder="Brief description for search engines"
+                                                      maxlength="160">{{ form.meta_description.value|default:'' }}</textarea>
+                                            <div class="d-flex justify-content-between mt-2">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-lightbulb me-1"></i>Shown in search snippets
+                                                </small>
+                                                <small class="text-muted">
+                                                    <span id="meta-desc-count">0</span>/160
+                                                </small>
+                                            </div>
+                                            {% if form.meta_description.errors %}
+                                                <div class="text-danger small mt-2">
+                                                    <i class="fas fa-exclamation-circle me-1"></i>{{ form.meta_description.errors.0 }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="modern-card sticky-top" style="top: 2rem;">
+                                    <div class="p-4">
+                                        <button type="submit" class="btn-modern-primary w-100 mb-3">
+                                            <i class="fas fa-save me-2"></i>{{ action }} Service
+                                        </button>
+                                        <a href="{% url 'users:admin_services_products' %}" class="btn-modern-secondary w-100">
+                                            <i class="fas fa-arrow-left me-2"></i>Back to Services
+                                        </a>
+
+                                        <div class="mt-4 p-3 bg-light rounded-3">
+                                            <small class="text-muted">
+                                                <i class="fas fa-save me-2"></i>
+                                                <strong>Auto-save:</strong> Your changes are automatically saved as you type
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Character counters for SEO fields
+document.addEventListener('DOMContentLoaded', function() {
+    const metaTitleField = document.getElementById('{{ form.meta_title.id_for_label }}');
+    const metaDescField = document.getElementById('{{ form.meta_description.id_for_label }}');
+    const titleCounter = document.getElementById('meta-title-count');
+    const descCounter = document.getElementById('meta-desc-count');
+
+    if (metaTitleField && titleCounter) {
+        function updateTitleCount() {
+            const count = metaTitleField.value.length;
+            titleCounter.textContent = count;
+            titleCounter.className = count > 60 ? 'text-danger' : count > 50 ? 'text-warning' : 'text-muted';
+        }
+        metaTitleField.addEventListener('input', updateTitleCount);
+        updateTitleCount();
+    }
+
+    if (metaDescField && descCounter) {
+        function updateDescCount() {
+            const count = metaDescField.value.length;
+            descCounter.textContent = count;
+            descCounter.className = count > 160 ? 'text-danger' : count > 140 ? 'text-warning' : 'text-muted';
+        }
+        metaDescField.addEventListener('input', updateDescCount);
+        updateDescCount();
+    }
+
+    // Enhanced form validation
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const requiredFields = form.querySelectorAll('[required]');
+            let hasErrors = false;
+
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    hasErrors = true;
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+
+            if (hasErrors) {
+                e.preventDefault();
+                // Scroll to first error
+                const firstError = form.querySelector('.is-invalid');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstError.focus();
+                }
+            }
+        });
+    }
+
+    // Auto-resize textareas
+    const textareas = document.querySelectorAll('textarea');
+    textareas.forEach(textarea => {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    });
+});
+
+// Add image form functionality
+function addImageForm() {
+    const formset = document.getElementById('image-formset');
+    const totalForms = document.getElementById('id_images-TOTAL_FORMS');
+    const formNum = parseInt(totalForms.value);
+
+    // Clone the last form
+    const lastForm = formset.querySelector('.modern-card:last-child');
+    if (lastForm) {
+        const newForm = lastForm.cloneNode(true);
+
+        // Update form numbers
+        const regex = new RegExp('images-\\d+-', 'g');
+        newForm.innerHTML = newForm.innerHTML.replace(regex, `images-${formNum}-`);
+
+        // Clear values
+        const inputs = newForm.querySelectorAll('input, textarea');
+        inputs.forEach(input => {
+            if (input.type !== 'checkbox') {
+                input.value = '';
+            } else {
+                input.checked = false;
+            }
+        });
+
+        // Update title
+        const title = newForm.querySelector('h6');
+        if (title) {
+            title.textContent = `New Image ${formNum + 1}`;
+        }
+
+        formset.appendChild(newForm);
+        totalForms.value = formNum + 1;
+    }
+}
+</script>
+{% endblock %}

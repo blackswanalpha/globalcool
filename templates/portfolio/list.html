@@ -1,0 +1,311 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Our Portfolio - {{ site_settings.company_name }}{% endblock %}
+{% block description %}View our portfolio of successful HVAC projects in Kenya. See our work in residential and commercial air conditioning installations.{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-20">
+        <div class="container">
+            <div class="max-w-3xl mx-auto text-center">
+                <h1 class="text-4xl md:text-5xl font-heading font-bold mb-6">Our Portfolio</h1>
+                <p class="text-xl text-gray-200">Showcasing our successful HVAC projects across Kenya.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters Section -->
+    {% if filter_form %}
+    <section class="bg-white py-8 border-b">
+        <div class="container">
+            <form method="get" class="flex flex-wrap items-center gap-4">
+                <div class="flex-1 min-w-64">
+                    {{ filter_form.search }}
+                </div>
+                <div class="min-w-40">
+                    {{ filter_form.project_type }}
+                </div>
+                <div class="min-w-40">
+                    {{ filter_form.status }}
+                </div>
+                <div class="flex items-center">
+                    {{ filter_form.featured_only }}
+                    <label for="{{ filter_form.featured_only.id_for_label }}" class="ml-2 text-sm text-gray-600">Featured only</label>
+                </div>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-search mr-2"></i>Filter
+                </button>
+            </form>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Featured Projects -->
+    {% if featured_projects %}
+    <section class="section bg-gray-50">
+        <div class="container">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-heading font-bold text-gray-900 mb-4">Featured Projects</h2>
+                <p class="text-xl text-gray-600">Showcasing our most successful HVAC installations</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for project in featured_projects %}
+                <div class="card-hover">
+                    <div class="relative h-64 bg-gray-200 rounded-t-xl overflow-hidden">
+                        {% if project.images.first %}
+                            <img src="{{ project.images.first.image.url }}"
+                                 alt="{{ project.title }}"
+                                 class="w-full h-full object-cover">
+                        {% else %}
+                            <div class="absolute inset-0 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 flex items-center justify-center">
+                                <i class="fas fa-briefcase text-4xl text-gray-400"></i>
+                            </div>
+                        {% endif %}
+                        <div class="absolute top-4 left-4">
+                            <span class="badge-warning">Featured</span>
+                        </div>
+                        {% if project.project_type %}
+                        <div class="absolute top-4 right-4">
+                            <span class="badge-primary">{{ project.get_project_type_display }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <h3 class="text-xl font-heading font-semibold text-gray-900 mb-2">{{ project.title }}</h3>
+                        <p class="text-gray-600 mb-4">{{ project.summary|truncatechars:120 }}</p>
+                        <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+                            <span><i class="fas fa-user mr-1"></i>{{ project.client_name|default:"Private Client" }}</span>
+                            <span><i class="fas fa-map-marker-alt mr-1"></i>{{ project.location|default:"Kenya" }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                {% if project.status == 'completed' %}
+                                    <span class="badge-success">Completed</span>
+                                {% elif project.status == 'in_progress' %}
+                                    <span class="badge-warning">In Progress</span>
+                                {% else %}
+                                    <span class="badge-secondary">{{ project.get_status_display }}</span>
+                                {% endif %}
+                            </div>
+                            <a href="{{ project.get_absolute_url }}" class="btn-primary-sm">
+                                View Details <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Portfolio Grid -->
+    <section class="section">
+        <div class="container">
+            {% if not featured_projects %}
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-heading font-bold text-gray-900 mb-4">All Projects</h2>
+                <p class="text-xl text-gray-600">Browse our complete portfolio of HVAC projects</p>
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for project in projects %}
+                <div class="card-hover">
+                    <div class="relative h-64 bg-gray-200 rounded-t-xl overflow-hidden">
+                        {% if project.images.first %}
+                            <img src="{{ project.images.first.image.url }}"
+                                 alt="{{ project.title }}"
+                                 class="w-full h-full object-cover">
+                        {% else %}
+                            <div class="absolute inset-0 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 flex items-center justify-center">
+                                <i class="fas fa-briefcase text-4xl text-gray-400"></i>
+                            </div>
+                        {% endif %}
+                        {% if project.is_featured %}
+                        <div class="absolute top-4 left-4">
+                            <span class="badge-warning">Featured</span>
+                        </div>
+                        {% endif %}
+                        {% if project.project_type %}
+                        <div class="absolute top-4 right-4">
+                            <span class="badge-primary">{{ project.get_project_type_display }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <h3 class="text-xl font-heading font-semibold text-gray-900 mb-2">{{ project.title }}</h3>
+                        <p class="text-gray-600 mb-4">{{ project.summary|truncatechars:120 }}</p>
+                        <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+                            <span><i class="fas fa-user mr-1"></i>{{ project.client_name|default:"Private Client" }}</span>
+                            <span><i class="fas fa-map-marker-alt mr-1"></i>{{ project.location|default:"Kenya" }}</span>
+                        </div>
+                        {% if project.end_date %}
+                        <div class="text-sm text-gray-500 mb-4">
+                            <i class="fas fa-calendar mr-1"></i>Completed: {{ project.end_date|date:"M Y" }}
+                        </div>
+                        {% endif %}
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                {% if project.status == 'completed' %}
+                                    <span class="badge-success">Completed</span>
+                                {% elif project.status == 'in_progress' %}
+                                    <span class="badge-warning">In Progress</span>
+                                {% else %}
+                                    <span class="badge-secondary">{{ project.get_status_display }}</span>
+                                {% endif %}
+
+                                {% if project.services.exists %}
+                                    <span class="text-xs text-gray-500">{{ project.services.count }} service{{ project.services.count|pluralize }}</span>
+                                {% endif %}
+                            </div>
+                            <a href="{{ project.get_absolute_url }}" class="btn-primary-sm">
+                                View Details <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-span-full text-center py-16">
+                    <div class="max-w-md mx-auto">
+                        <i class="fas fa-briefcase text-6xl text-gray-300 mb-4"></i>
+                        <h3 class="text-2xl font-heading font-semibold text-gray-900 mb-2">No Projects Found</h3>
+                        <p class="text-gray-600 mb-6">We haven't added any portfolio projects yet, or no projects match your current filters.</p>
+                        {% if request.GET %}
+                        <a href="{% url 'portfolio:list' %}" class="btn-primary">
+                            <i class="fas fa-refresh mr-2"></i>Clear Filters
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="flex justify-center mt-12">
+                <nav class="flex items-center space-x-2">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.project_type %}&project_type={{ request.GET.project_type }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.featured_only %}&featured_only={{ request.GET.featured_only }}{% endif %}"
+                           class="px-3 py-2 text-sm text-gray-500 hover:text-primary-600">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                        <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.project_type %}&project_type={{ request.GET.project_type }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.featured_only %}&featured_only={{ request.GET.featured_only }}{% endif %}"
+                           class="px-3 py-2 text-sm text-gray-500 hover:text-primary-600">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <span class="px-4 py-2 text-sm bg-primary-600 text-white rounded-lg">{{ num }}</span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.project_type %}&project_type={{ request.GET.project_type }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.featured_only %}&featured_only={{ request.GET.featured_only }}{% endif %}"
+                               class="px-4 py-2 text-sm text-gray-500 hover:text-primary-600 hover:bg-gray-100 rounded-lg">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.project_type %}&project_type={{ request.GET.project_type }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.featured_only %}&featured_only={{ request.GET.featured_only }}{% endif %}"
+                           class="px-3 py-2 text-sm text-gray-500 hover:text-primary-600">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.project_type %}&project_type={{ request.GET.project_type }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.featured_only %}&featured_only={{ request.GET.featured_only }}{% endif %}"
+                           class="px-3 py-2 text-sm text-gray-500 hover:text-primary-600">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    {% endif %}
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+                        <p class="text-gray-600 mb-4">Complete central air conditioning system installation for a 4-bedroom home in Nairobi.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">Completed: 2024</span>
+                            <a href="#" class="text-primary-500 font-medium hover:text-primary-600">View Details →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Item 2 -->
+                <div class="card-hover">
+                    <div class="relative h-64 bg-gray-200 rounded-t-xl overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-br from-secondary-500/20 to-accent-500/20 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4 4h16v2H4V4zm0 4h16v2H4V8zm0 4h16v2H4v-2zm0 4h16v2H4v-2z"/>
+                            </svg>
+                        </div>
+                        <div class="absolute top-4 left-4">
+                            <span class="badge-secondary">Commercial</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="text-xl font-heading font-semibold text-gray-900 mb-2">Office Building HVAC</h3>
+                        <p class="text-gray-600 mb-4">Commercial HVAC system installation for a 10-story office building in Westlands.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">Completed: 2024</span>
+                            <a href="#" class="text-primary-500 font-medium hover:text-primary-600">View Details →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Item 3 -->
+                <div class="card-hover">
+                    <div class="relative h-64 bg-gray-200 rounded-t-xl overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-br from-accent-500/20 to-primary-500/20 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4 4h16v2H4V4zm0 4h16v2H4V8zm0 4h16v2H4v-2zm0 4h16v2H4v-2z"/>
+                            </svg>
+                        </div>
+                        <div class="absolute top-4 left-4">
+                            <span class="badge-success">Maintenance</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="text-xl font-heading font-semibold text-gray-900 mb-2">Hotel HVAC Maintenance</h3>
+                        <p class="text-gray-600 mb-4">Comprehensive maintenance program for a luxury hotel's HVAC systems.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">Ongoing: 2024</span>
+                            <a href="#" class="text-primary-500 font-medium hover:text-primary-600">View Details →</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Section -->
+            <div class="mt-16 bg-white rounded-2xl p-8 shadow-soft">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                    <div>
+                        <div class="text-3xl font-bold text-primary-500 mb-2">500+</div>
+                        <div class="text-gray-600">Projects Completed</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold text-secondary-500 mb-2">100%</div>
+                        <div class="text-gray-600">Client Satisfaction</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold text-accent-500 mb-2">5+</div>
+                        <div class="text-gray-600">Years Experience</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold text-green-500 mb-2">24/7</div>
+                        <div class="text-gray-600">Support Available</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Section -->
+            <div class="text-center mt-16">
+                <div class="bg-primary-50 rounded-2xl p-8">
+                    <h2 class="text-3xl font-heading font-bold text-gray-900 mb-4">Ready to Start Your Project?</h2>
+                    <p class="text-lg text-gray-600 mb-8">Join our satisfied clients and experience professional HVAC services.</p>
+                    <a href="{% url 'leads:quote' %}" class="btn-primary btn-lg">Get Your Free Quote</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

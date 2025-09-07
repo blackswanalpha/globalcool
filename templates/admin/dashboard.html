@@ -1,0 +1,365 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - Global Cool-Light E.A LTD{% endblock %}
+
+{% block content %}
+<!-- Include Enhanced Sidebar -->
+{% include 'components/admin_sidebar.html' %}
+
+<!-- Content Start -->
+<div class="content">
+    <!-- Navbar Start -->
+    <nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
+        <a href="{% url 'users:admin_dashboard' %}" class="navbar-brand d-flex d-lg-none me-4">
+            <h2 class="text-primary mb-0"><i class="fas fa-snowflake"></i></h2>
+        </a>
+        <a href="#" class="sidebar-toggler flex-shrink-0">
+            <i class="fa fa-bars"></i>
+        </a>
+        <form class="d-none d-md-flex ms-4">
+            <input class="form-control border-0" type="search" placeholder="Search bookings, customers...">
+        </form>
+        <div class="navbar-nav align-items-center ms-auto">
+            <div class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fa fa-bell me-lg-2"></i>
+                    <span class="d-none d-lg-inline-flex">Notifications</span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                    <a href="#" class="dropdown-item">
+                        <h6 class="fw-normal mb-0">New booking request</h6>
+                        <small>15 minutes ago</small>
+                    </a>
+                    <hr class="dropdown-divider">
+                    <a href="#" class="dropdown-item text-center">See all notifications</a>
+                </div>
+            </div>
+            <div class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                    <img class="rounded-circle me-lg-2" src="{% static 'admin-img/user.jpg' %}" alt="" style="width: 40px; height: 40px;">
+                    <span class="d-none d-lg-inline-flex">{{ user.get_full_name|default:user.email }}</span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                    <a href="#" class="dropdown-item">My Profile</a>
+                    <a href="#" class="dropdown-item">Settings</a>
+                    <a href="{% url 'users:admin_logout' %}" class="dropdown-item">Log Out</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- Navbar End -->
+
+    <!-- Statistics Start -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="row g-4">
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                    <i class="fas fa-calendar-check fa-3x text-primary"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Today's Bookings</p>
+                        <h6 class="mb-0">{{ today_bookings|default:0 }}</h6>
+                        <small class="text-muted">{{ this_week_bookings }} this week</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                    <i class="fas fa-clock fa-3x text-warning"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Pending Bookings</p>
+                        <h6 class="mb-0">{{ pending_bookings|default:0 }}</h6>
+                        <small class="text-muted">Need attention</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                    <i class="fas fa-users fa-3x text-info"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Total Customers</p>
+                        <h6 class="mb-0">{{ total_customers|default:0 }}</h6>
+                        <small class="text-muted">{{ active_services }} services</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                    <i class="fas fa-chart-line fa-3x text-success"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Monthly Revenue</p>
+                        <h6 class="mb-0">KSh {{ monthly_revenue|floatformat:0|default:0 }}</h6>
+                        <small class="text-muted">{{ completed_bookings }} completed</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Statistics End -->
+
+    <!-- Analytics Charts Start -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="row g-4">
+            <!-- Service Performance Chart -->
+            <div class="col-sm-12 col-xl-6">
+                <div class="bg-light text-center rounded p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <h6 class="mb-0">Top Services Performance</h6>
+                        <a href="{% url 'users:admin_bookings_list' %}">View All</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Service</th>
+                                    <th>Bookings</th>
+                                    <th>Completed</th>
+                                    <th>Revenue</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for service in service_performance %}
+                                <tr>
+                                    <td>{{ service.service__name|truncatechars:20 }}</td>
+                                    <td><span class="badge bg-primary">{{ service.total_bookings }}</span></td>
+                                    <td><span class="badge bg-success">{{ service.completed_bookings|default:0 }}</span></td>
+                                    <td>KSh {{ service.total_revenue|default:0|floatformat:0 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-muted">No service data available</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Overview -->
+            <div class="col-sm-12 col-xl-6">
+                <div class="bg-light text-center rounded p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <h6 class="mb-0">Portfolio Overview</h6>
+                        <a href="{% url 'users:admin_portfolio_list' %}">Manage</a>
+                    </div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <div class="border rounded p-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-briefcase fa-2x text-primary me-3"></i>
+                                    <div>
+                                        <h5 class="mb-0">{{ total_projects|default:0 }}</h5>
+                                        <small class="text-muted">Total Projects</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border rounded p-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-eye fa-2x text-success me-3"></i>
+                                    <div>
+                                        <h5 class="mb-0">{{ published_projects|default:0 }}</h5>
+                                        <small class="text-muted">Published</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border rounded p-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-star fa-2x text-warning me-3"></i>
+                                    <div>
+                                        <h5 class="mb-0">{{ featured_projects|default:0 }}</h5>
+                                        <small class="text-muted">Featured</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border rounded p-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-eye-slash fa-2x text-secondary me-3"></i>
+                                    <div>
+                                        <h5 class="mb-0">{{ draft_projects|default:0 }}</h5>
+                                        <small class="text-muted">Drafts</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Projects -->
+                    {% if recent_projects %}
+                    <div class="text-start">
+                        <h6 class="mb-3">Recent Projects</h6>
+                        {% for project in recent_projects %}
+                        <div class="d-flex align-items-center mb-2">
+                            {% if project.images.first %}
+                                <img src="{{ project.images.first.image.url }}"
+                                     alt="{{ project.title }}"
+                                     class="rounded me-3"
+                                     style="width: 40px; height: 40px; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-secondary rounded me-3 d-flex align-items-center justify-content-center"
+                                     style="width: 40px; height: 40px;">
+                                    <i class="fas fa-image text-white"></i>
+                                </div>
+                            {% endif %}
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0">{{ project.title|truncatechars:25 }}</h6>
+                                <small class="text-muted">{{ project.client_name|default:"No client" }}</small>
+                            </div>
+                            <div class="text-end">
+                                {% if project.is_published %}
+                                    <span class="badge bg-success">Published</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Draft</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Booking Status Distribution -->
+            <div class="col-sm-12 col-xl-6">
+                <div class="bg-light text-center rounded p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <h6 class="mb-0">Booking Status Overview</h6>
+                        <a href="{% url 'users:admin_bookings_list' %}">Manage</a>
+                    </div>
+                    <div class="row g-3">
+                        {% for status in status_distribution %}
+                        <div class="col-6">
+                            <div class="border rounded p-3">
+                                <div class="d-flex align-items-center">
+                                    {% if status.status == 'new' %}
+                                        <i class="fas fa-clock text-primary me-2"></i>
+                                    {% elif status.status == 'confirmed' %}
+                                        <i class="fas fa-check-circle text-info me-2"></i>
+                                    {% elif status.status == 'in_progress' %}
+                                        <i class="fas fa-cog text-warning me-2"></i>
+                                    {% elif status.status == 'completed' %}
+                                        <i class="fas fa-check-double text-success me-2"></i>
+                                    {% elif status.status == 'cancelled' %}
+                                        <i class="fas fa-times-circle text-danger me-2"></i>
+                                    {% else %}
+                                        <i class="fas fa-question-circle text-secondary me-2"></i>
+                                    {% endif %}
+                                    <div>
+                                        <small class="text-muted">{{ status.status|title }}</small>
+                                        <h6 class="mb-0">{{ status.count }}</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Analytics Charts End -->
+
+    <!-- Recent Activity Start -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="row g-4">
+            <div class="col-sm-12 col-xl-6">
+                <div class="bg-light text-center rounded p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <h6 class="mb-0">Recent Bookings</h6>
+                        <a href="{% url 'users:admin_bookings_list' %}">View All</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table text-start align-middle table-bordered table-hover mb-0">
+                            <thead>
+                                <tr class="text-dark">
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Customer</th>
+                                    <th scope="col">Service</th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for booking in recent_bookings %}
+                                <tr>
+                                    <td><small class="text-muted">#{{ booking.booking_id }}</small></td>
+                                    <td>
+                                        <strong>{{ booking.customer }}</strong>
+                                    </td>
+                                    <td>{{ booking.service }}</td>
+                                    <td>{{ booking.date }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ booking.status_class }}">
+                                            {{ booking.status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-4">
+                                        <i class="fas fa-calendar-times fa-2x mb-2 d-block"></i>
+                                        No recent bookings found
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-xl-6">
+                <div class="bg-light text-center rounded p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <h6 class="mb-0">Quick Actions</h6>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <a href="{% url 'users:admin_bookings_list' %}" class="btn btn-primary w-100 py-3">
+                                <i class="fas fa-calendar-check me-2"></i>Manage Bookings
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="#" class="btn btn-success w-100 py-3">
+                                <i class="fas fa-file-invoice me-2"></i>Create Quote
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="#" class="btn btn-info w-100 py-3">
+                                <i class="fas fa-tools me-2"></i>Add Service
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="#" class="btn btn-warning w-100 py-3">
+                                <i class="fas fa-users me-2"></i>Manage Users
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Recent Activity End -->
+
+    <!-- Footer Start -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="bg-light rounded-top p-4">
+            <div class="row">
+                <div class="col-12 col-sm-6 text-center text-sm-start">
+                    &copy; <a href="{% url 'core:home' %}">Global Cool-Light E.A LTD</a>, All Right Reserved.
+                </div>
+                <div class="col-12 col-sm-6 text-center text-sm-end">
+                    Designed By <a href="#">Global Cool-Light Team</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+</div>
+<!-- Content End -->
+{% endblock %}

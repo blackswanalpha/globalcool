@@ -1,0 +1,29 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Privacy Policy - {{ site_settings.company_name }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <section class="section">
+        <div class="container">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-4xl font-heading font-bold text-gray-900 mb-8">Privacy Policy</h1>
+                <div class="prose prose-lg">
+                    <p>Last updated: {{ current_year }}</p>
+                    <p>Global Cool-Light E.A LTD is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information.</p>
+                    
+                    <h2>Information We Collect</h2>
+                    <p>We collect information you provide directly to us, such as when you contact us for services or request a quote.</p>
+                    
+                    <h2>How We Use Your Information</h2>
+                    <p>We use the information we collect to provide, maintain, and improve our services and communicate with you.</p>
+                    
+                    <h2>Contact Us</h2>
+                    <p>If you have any questions about this Privacy Policy, please contact us at info@globalcool-light.com</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

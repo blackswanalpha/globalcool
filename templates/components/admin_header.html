@@ -1,0 +1,178 @@
+{% load static %}
+
+<!-- Enhanced Admin Header -->
+<nav class="admin-header navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
+    <!-- Mobile Menu Toggle (visible on mobile only) -->
+    <button class="sidebar-toggler d-lg-none me-3" type="button">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Brand Logo (visible on mobile when sidebar is closed) -->
+    <a href="{% url 'users:admin_dashboard' %}" class="header-brand d-lg-none">
+        <i class="fas fa-snowflake"></i>
+        <span class="brand-text">Global Cool-Light</span>
+    </a>
+
+    <!-- Breadcrumb Navigation -->
+    <nav class="breadcrumb-nav d-none d-lg-flex" aria-label="breadcrumb">
+        <div class="breadcrumb-item">
+            <i class="fas fa-home me-1"></i>
+            <a href="{% url 'users:admin_dashboard' %}">Dashboard</a>
+        </div>
+        {% if breadcrumb_title %}
+        <span class="breadcrumb-separator">/</span>
+        <div class="breadcrumb-item active">
+            {% if breadcrumb_icon %}
+                <i class="{{ breadcrumb_icon }} me-1"></i>
+            {% endif %}
+            {{ breadcrumb_title }}
+        </div>
+        {% endif %}
+        {% if breadcrumbs %}
+            {% for breadcrumb in breadcrumbs %}
+                <span class="breadcrumb-separator">/</span>
+                <div class="breadcrumb-item {% if forloop.last %}active{% endif %}">
+                    {% if breadcrumb.icon %}
+                        <i class="{{ breadcrumb.icon }} me-1"></i>
+                    {% endif %}
+                    {% if breadcrumb.url and not forloop.last %}
+                        <a href="{{ breadcrumb.url }}">{{ breadcrumb.title }}</a>
+                    {% else %}
+                        {{ breadcrumb.title }}
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% endif %}
+    </nav>
+
+    <!-- Search Bar -->
+    <div class="header-search d-none d-md-block">
+        <input type="text" class="form-control" placeholder="Search bookings, customers, services..." id="globalSearch">
+        <i class="fas fa-search search-icon"></i>
+    </div>
+
+    <!-- Header Actions -->
+    <div class="header-actions">
+        <!-- Quick Actions Dropdown -->
+        <div class="dropdown">
+            <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="fas fa-plus me-1"></i>
+                <span class="d-none d-md-inline">Quick Add</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#"><i class="fas fa-calendar-plus"></i>New Booking</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-file-invoice"></i>Create Quote</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-tools"></i>Add Service</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-box"></i>Add Product</a></li>
+            </ul>
+        </div>
+
+        <!-- Notifications -->
+        <div class="dropdown">
+            <button class="header-notification" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge" id="notificationBadge" style="display: none;"></span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end" style="width: 320px;">
+                <div class="dropdown-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">Notifications</h6>
+                    <small class="text-muted">0 new</small>
+                </div>
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-item-text text-center py-4">
+                    <i class="fas fa-bell-slash fa-2x text-muted mb-2"></i>
+                    <p class="mb-0 text-muted">No new notifications</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Profile -->
+        <div class="dropdown">
+            <button class="header-profile" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="{% static 'admin-img/user.jpg' %}" alt="User Avatar" class="user-avatar">
+                <div class="profile-info d-none d-md-block">
+                    <div class="profile-name">{{ user.get_full_name|default:user.email|truncatechars:20 }}</div>
+                    <div class="profile-role">Administrator</div>
+                </div>
+                <i class="fas fa-chevron-down ms-2"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li class="dropdown-header">
+                    <div class="d-flex align-items-center">
+                        <img src="{% static 'admin-img/user.jpg' %}" alt="User Avatar" class="rounded-circle me-2" style="width: 32px; height: 32px;">
+                        <div>
+                            <div class="fw-semibold">{{ user.get_full_name|default:user.username }}</div>
+                            <small class="text-muted">{{ user.email }}</small>
+                        </div>
+                    </div>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-user"></i>My Profile</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i>Account Settings</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-question-circle"></i>Help & Support</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="{% url 'users:admin_logout' %}"><i class="fas fa-sign-out-alt"></i>Sign Out</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Mobile Search (shown when search icon is clicked on mobile) -->
+<div class="mobile-search d-md-none" id="mobileSearch" style="display: none;">
+    <div class="p-3 bg-white border-bottom">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search bookings, customers, services...">
+            <button class="btn btn-outline-secondary" type="button" id="closeMobileSearch">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Mobile search toggle
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileSearchToggle = document.getElementById('mobileSearchToggle');
+    const mobileSearch = document.getElementById('mobileSearch');
+    const closeMobileSearch = document.getElementById('closeMobileSearch');
+    
+    if (mobileSearchToggle) {
+        mobileSearchToggle.addEventListener('click', function() {
+            mobileSearch.style.display = 'block';
+            mobileSearch.querySelector('input').focus();
+        });
+    }
+    
+    if (closeMobileSearch) {
+        closeMobileSearch.addEventListener('click', function() {
+            mobileSearch.style.display = 'none';
+        });
+    }
+    
+    // Global search functionality
+    const globalSearch = document.getElementById('globalSearch');
+    if (globalSearch) {
+        globalSearch.addEventListener('input', function(e) {
+            const query = e.target.value;
+            if (query.length > 2) {
+                // Implement search functionality here
+                console.log('Searching for:', query);
+            }
+        });
+    }
+    
+    // Update notification badge
+    function updateNotificationBadge() {
+        const badge = document.getElementById('notificationBadge');
+        // This would typically fetch from an API
+        // For now, we'll show/hide based on notifications count
+        {% if notifications.count > 0 %}
+        if (badge) badge.style.display = 'block';
+        {% else %}
+        if (badge) badge.style.display = 'none';
+        {% endif %}
+    }
+    
+    updateNotificationBadge();
+});
+</script>

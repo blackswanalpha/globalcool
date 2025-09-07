@@ -1,0 +1,340 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Global Cool-Light E.A LTD{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .detail-header {
+        background: linear-gradient(135deg, #004AAD 0%, #00AEEF 100%);
+        color: white;
+        padding: 2rem;
+        margin-bottom: 0;
+    }
+    
+    .detail-section {
+        padding: 2rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .detail-section:last-child {
+        border-bottom: none;
+    }
+    
+    .section-title {
+        color: #004AAD;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #00AEEF;
+        display: inline-block;
+    }
+    
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .status-draft { background: #f3f4f6; color: #374151; }
+    .status-sent { background: #dbeafe; color: #1e40af; }
+    .status-viewed { background: #fef3c7; color: #92400e; }
+    .status-accepted { background: #d1fae5; color: #065f46; }
+    .status-rejected { background: #fee2e2; color: #991b1b; }
+    .status-expired { background: #fecaca; color: #7f1d1d; }
+    .status-revised { background: #e0e7ff; color: #3730a3; }
+    
+    .info-item {
+        margin-bottom: 1rem;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.25rem;
+    }
+    
+    .info-value {
+        color: #6b7280;
+    }
+    
+    .amount-highlight {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #004AAD;
+    }
+    
+    .line-items-table {
+        background: #f8f9fa;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .action-buttons {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 0 0 15px 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Include Enhanced Sidebar -->
+{% include 'components/admin_sidebar.html' %}
+
+<!-- Content Start -->
+<div class="content">
+    <!-- Include Enhanced Header -->
+    {% include 'components/admin_header.html' %}
+
+    <!-- Detail Container Start -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="row justify-content-center">
+            <div class="col-12 col-xl-10">
+                <div class="detail-container">
+                    <!-- Header -->
+                    <div class="detail-header">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h1>
+                                    <i class="fas fa-file-invoice-dollar me-3"></i>{{ quotation.quote_number }}
+                                </h1>
+                                <p class="mb-0">{{ quotation.title }}</p>
+                            </div>
+                            <div class="text-end">
+                                <span class="status-badge status-{{ quotation.status }}">
+                                    {{ quotation.get_status_display }}
+                                </span>
+                                <div class="mt-2">
+                                    <a href="{% url 'users:admin_quotations_list' %}" class="btn btn-light btn-sm me-2">
+                                        <i class="fas fa-arrow-left me-1"></i>Back to List
+                                    </a>
+                                    <a href="{% url 'users:admin_quotation_edit' quotation.id %}" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit me-1"></i>Edit
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Basic Information -->
+                    <div class="detail-section">
+                        <h3 class="section-title">Basic Information</h3>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="info-item">
+                                    <div class="info-label">Client</div>
+                                    <div class="info-value">
+                                        <strong>{{ quotation.client.name }}</strong><br>
+                                        {{ quotation.client.email }}<br>
+                                        {{ quotation.client.phone }}
+                                    </div>
+                                </div>
+                                {% if quotation.inquiry %}
+                                <div class="info-item">
+                                    <div class="info-label">Related Inquiry</div>
+                                    <div class="info-value">{{ quotation.inquiry.subject }}</div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-item">
+                                    <div class="info-label">Created By</div>
+                                    <div class="info-value">
+                                        {% if quotation.created_by %}
+                                            {{ quotation.created_by.get_full_name|default:quotation.created_by.username }}
+                                        {% else %}
+                                            System
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Created Date</div>
+                                    <div class="info-value">{{ quotation.created_at|date:"F d, Y g:i A" }}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Valid Until</div>
+                                    <div class="info-value">{{ quotation.valid_until|date:"F d, Y" }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% if quotation.description %}
+                        <div class="info-item">
+                            <div class="info-label">Description</div>
+                            <div class="info-value">{{ quotation.description|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Line Items -->
+                    <div class="detail-section">
+                        <h3 class="section-title">Line Items</h3>
+                        {% if quotation.items %}
+                            <div class="line-items-table">
+                                <table class="table table-striped mb-0">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Description</th>
+                                            <th>Quantity</th>
+                                            <th>Unit Price</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in quotation.items %}
+                                        <tr>
+                                            <td>{{ item.description }}</td>
+                                            <td>{{ item.quantity }}</td>
+                                            <td>KSh {{ item.unit_price|floatformat:2 }}</td>
+                                            <td>KSh {{ item.total|floatformat:2 }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <p class="text-muted">No line items added yet.</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Financial Summary -->
+                    <div class="detail-section">
+                        <h3 class="section-title">Financial Summary</h3>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="info-item">
+                                    <div class="info-label">Subtotal</div>
+                                    <div class="info-value">KSh {{ quotation.subtotal|floatformat:2 }}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Tax ({{ quotation.tax_rate }}%)</div>
+                                    <div class="info-value">KSh {{ quotation.tax_amount|floatformat:2 }}</div>
+                                </div>
+                                {% if quotation.discount_amount %}
+                                <div class="info-item">
+                                    <div class="info-label">Discount</div>
+                                    <div class="info-value">-KSh {{ quotation.discount_amount|floatformat:2 }}</div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-item">
+                                    <div class="info-label">Total Amount</div>
+                                    <div class="amount-highlight">KSh {{ quotation.total|floatformat:2 }}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Payment Terms</div>
+                                    <div class="info-value">{{ quotation.payment_terms }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Terms and Conditions -->
+                    {% if quotation.terms_and_conditions %}
+                    <div class="detail-section">
+                        <h3 class="section-title">Terms and Conditions</h3>
+                        <div class="info-value">{{ quotation.terms_and_conditions|linebreaks }}</div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Internal Notes -->
+                    {% if quotation.notes %}
+                    <div class="detail-section">
+                        <h3 class="section-title">Internal Notes</h3>
+                        <div class="info-value">{{ quotation.notes|linebreaks }}</div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Status Tracking -->
+                    <div class="detail-section">
+                        <h3 class="section-title">Status Tracking</h3>
+                        <div class="row">
+                            <div class="col-md-4">
+                                {% if quotation.sent_at %}
+                                <div class="info-item">
+                                    <div class="info-label">Sent At</div>
+                                    <div class="info-value">{{ quotation.sent_at|date:"F d, Y g:i A" }}</div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                {% if quotation.viewed_at %}
+                                <div class="info-item">
+                                    <div class="info-label">Viewed At</div>
+                                    <div class="info-value">{{ quotation.viewed_at|date:"F d, Y g:i A" }}</div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                {% if quotation.decided_at %}
+                                <div class="info-item">
+                                    <div class="info-label">Decision At</div>
+                                    <div class="info-value">{{ quotation.decided_at|date:"F d, Y g:i A" }}</div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <a href="{% url 'users:admin_quotations_list' %}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to List
+                                </a>
+                            </div>
+                            <div>
+                                {% if quotation.status != 'sent' and quotation.status != 'accepted' %}
+                                <a href="{% url 'users:admin_quotation_send_email' quotation.id %}" class="btn btn-success me-2">
+                                    <i class="fas fa-paper-plane me-2"></i>Send Email
+                                </a>
+                                {% endif %}
+
+                                <!-- Status Update Dropdown -->
+                                <div class="btn-group me-2" role="group">
+                                    <button type="button" class="btn btn-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-sync me-2"></i>Update Status
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><h6 class="dropdown-header">Change Status To:</h6></li>
+                                        {% for status_code, status_name in quotation.STATUS_CHOICES %}
+                                            {% if status_code != quotation.status %}
+                                            <li>
+                                                <form method="post" action="{% url 'users:admin_quotation_status_update' quotation.id %}" style="display: inline;">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="status" value="{{ status_code }}">
+                                                    <button type="submit" class="dropdown-item">{{ status_name }}</button>
+                                                </form>
+                                            </li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+
+                                <a href="{% url 'users:admin_quotation_edit' quotation.id %}" class="btn btn-warning me-2">
+                                    <i class="fas fa-edit me-2"></i>Edit Quotation
+                                </a>
+                                <a href="{% url 'users:admin_quotation_delete' quotation.id %}" class="btn btn-danger">
+                                    <i class="fas fa-trash me-2"></i>Delete
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Content End -->
+{% endblock %}

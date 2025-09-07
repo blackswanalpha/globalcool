@@ -1,0 +1,123 @@
+{% load static %}
+
+<!-- Admin User Profile Dropdown Component -->
+<!-- Usage: {% include 'components/admin_user_profile.html' %} -->
+
+<div class="dropdown">
+    <button class="header-profile" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        {% if user.profile.avatar %}
+            <img src="{{ user.profile.avatar.url }}" alt="User Avatar" class="user-avatar">
+        {% else %}
+            <img src="{% static 'admin-img/user.jpg' %}" alt="User Avatar" class="user-avatar">
+        {% endif %}
+        <div class="profile-info d-none d-md-block">
+            <div class="profile-name">{{ user.get_full_name|default:user.email|truncatechars:20 }}</div>
+            <div class="profile-role">
+                {% if user.is_superuser %}
+                    Super Administrator
+                {% elif user.is_staff %}
+                    Administrator
+                {% else %}
+                    User
+                {% endif %}
+            </div>
+        </div>
+        <i class="fas fa-chevron-down ms-2"></i>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+        <!-- User Info Header -->
+        <li class="dropdown-header">
+            <div class="d-flex align-items-center">
+                {% if user.profile.avatar %}
+                    <img src="{{ user.profile.avatar.url }}" alt="User Avatar" class="rounded-circle me-2" style="width: 32px; height: 32px;">
+                {% else %}
+                    <img src="{% static 'admin-img/user.jpg' %}" alt="User Avatar" class="rounded-circle me-2" style="width: 32px; height: 32px;">
+                {% endif %}
+                <div>
+                    <div class="fw-semibold">{{ user.get_full_name|default:user.username }}</div>
+                    <small class="text-muted">{{ user.email }}</small>
+                </div>
+            </div>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        
+        <!-- Profile Actions -->
+        <li><a class="dropdown-item" href="{% url 'users:admin_profile' %}"><i class="fas fa-user"></i>My Profile</a></li>
+        <li><a class="dropdown-item" href="{% url 'users:admin_account_settings' %}"><i class="fas fa-cog"></i>Account Settings</a></li>
+        <li><a class="dropdown-item" href="{% url 'users:admin_preferences' %}"><i class="fas fa-sliders-h"></i>Preferences</a></li>
+        
+        <!-- Quick Stats -->
+        <li><hr class="dropdown-divider"></li>
+        <li class="dropdown-header">
+            <small class="text-muted">Quick Stats</small>
+        </li>
+        <li class="dropdown-item-text">
+            <div class="row text-center">
+                <div class="col-4">
+                    <div class="fw-bold text-primary">{{ user_stats.bookings_today|default:0 }}</div>
+                    <small class="text-muted">Today</small>
+                </div>
+                <div class="col-4">
+                    <div class="fw-bold text-success">{{ user_stats.bookings_week|default:0 }}</div>
+                    <small class="text-muted">This Week</small>
+                </div>
+                <div class="col-4">
+                    <div class="fw-bold text-info">{{ user_stats.total_bookings|default:0 }}</div>
+                    <small class="text-muted">Total</small>
+                </div>
+            </div>
+        </li>
+        
+        <!-- Help & Support -->
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="{% url 'users:admin_help' %}"><i class="fas fa-question-circle"></i>Help & Support</a></li>
+        <li><a class="dropdown-item" href="{% url 'users:admin_keyboard_shortcuts' %}"><i class="fas fa-keyboard"></i>Keyboard Shortcuts</a></li>
+        
+        <!-- System Info (for superusers) -->
+        {% if user.is_superuser %}
+        <li><hr class="dropdown-divider"></li>
+        <li class="dropdown-header">
+            <small class="text-muted">System</small>
+        </li>
+        <li><a class="dropdown-item" href="{% url 'users:admin_system_info' %}"><i class="fas fa-info-circle"></i>System Information</a></li>
+        <li><a class="dropdown-item" href="{% url 'users:admin_logs' %}"><i class="fas fa-file-alt"></i>System Logs</a></li>
+        {% endif %}
+        
+        <!-- Logout -->
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item text-danger" href="{% url 'users:admin_logout' %}" data-confirm="Are you sure you want to sign out?"><i class="fas fa-sign-out-alt"></i>Sign Out</a></li>
+    </ul>
+</div>
+
+<!-- Online Status Indicator -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Update user's last activity timestamp
+    function updateLastActivity() {
+        fetch('{% url "users:update_last_activity" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        }).catch(error => {
+            console.error('Error updating last activity:', error);
+        });
+    }
+    
+    // Update activity every 5 minutes
+    setInterval(updateLastActivity, 5 * 60 * 1000);
+    
+    // Update activity on user interaction
+    let activityTimer;
+    document.addEventListener('click', function() {
+        clearTimeout(activityTimer);
+        activityTimer = setTimeout(updateLastActivity, 1000);
+    });
+    
+    document.addEventListener('keypress', function() {
+        clearTimeout(activityTimer);
+        activityTimer = setTimeout(updateLastActivity, 1000);
+    });
+});
+</script>

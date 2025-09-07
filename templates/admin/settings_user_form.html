@@ -1,0 +1,269 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+.form-section {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.form-section-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem 1.5rem;
+    border-radius: 8px 8px 0 0;
+}
+
+.form-section-body {
+    padding: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.required-field::after {
+    content: " *";
+    color: #dc3545;
+}
+
+.form-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.password-requirements {
+    background: #f8f9fa;
+    border-left: 4px solid #004AAD;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.password-requirements ul {
+    margin-bottom: 0;
+    padding-left: 1.5rem;
+}
+
+.password-requirements li {
+    margin-bottom: 0.25rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Include Enhanced Sidebar -->
+{% include 'components/admin_sidebar.html' %}
+
+<!-- Content Start -->
+<div class="content">
+    <!-- Include Enhanced Header -->
+    {% include 'components/admin_header.html' %}
+
+    <!-- Page Header -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h1 class="h3 mb-0 text-gray-800">
+                            <i class="fas fa-user-plus me-2 text-primary"></i>{{ title }}
+                        </h1>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a href="{% url 'users:admin_dashboard' %}">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item">
+                                    <a href="{% url 'users:admin_user_management' %}">User Management</a>
+                                </li>
+                                <li class="breadcrumb-item active">{{ action }} User</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <a href="{% url 'users:admin_user_management' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Users
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Form Content -->
+    <div class="container-fluid px-4 pb-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Basic Information -->
+                    <div class="form-section">
+                        <div class="form-section-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-user me-2 text-primary"></i>Basic Information
+                            </h5>
+                        </div>
+                        <div class="form-section-body">
+                            {% if action == "Add" %}
+                            <div class="form-group">
+                                <label class="form-label required-field" for="{{ form.username.id_for_label }}">Username</label>
+                                {{ form.username }}
+                                {% if form.username.errors %}
+                                    <div class="text-danger small">{{ form.username.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">Username must be unique and cannot be changed later</div>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label required-field" for="{{ form.first_name.id_for_label }}">First Name</label>
+                                        {{ form.first_name }}
+                                        {% if form.first_name.errors %}
+                                            <div class="text-danger small">{{ form.first_name.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label required-field" for="{{ form.last_name.id_for_label }}">Last Name</label>
+                                        {{ form.last_name }}
+                                        {% if form.last_name.errors %}
+                                            <div class="text-danger small">{{ form.last_name.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label required-field" for="{{ form.email.id_for_label }}">Email Address</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small">{{ form.email.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">This will be used for login and notifications</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label required-field" for="{{ form.role.id_for_label }}">Role</label>
+                                {{ form.role }}
+                                {% if form.role.errors %}
+                                    <div class="text-danger small">{{ form.role.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">Role determines the user's permissions and access level</div>
+                            </div>
+                            
+                            {% if action == "Edit" %}
+                            <div class="form-group">
+                                <div class="form-check">
+                                    {{ form.is_active }}
+                                    <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                        Account is active
+                                    </label>
+                                </div>
+                                <div class="form-text">Inactive users cannot log in to the system</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if action == "Add" %}
+                    <!-- Password Section -->
+                    <div class="form-section">
+                        <div class="form-section-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-lock me-2 text-primary"></i>Password Setup
+                            </h5>
+                        </div>
+                        <div class="form-section-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label required-field" for="{{ form.password1.id_for_label }}">Password</label>
+                                        {{ form.password1 }}
+                                        {% if form.password1.errors %}
+                                            <div class="text-danger small">{{ form.password1.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label required-field" for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                                        {{ form.password2 }}
+                                        {% if form.password2.errors %}
+                                            <div class="text-danger small">{{ form.password2.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="password-requirements">
+                                <h6><i class="fas fa-info-circle me-2"></i>Password Requirements:</h6>
+                                <ul>
+                                    <li>At least 8 characters long</li>
+                                    <li>Must contain at least one uppercase letter</li>
+                                    <li>Must contain at least one lowercase letter</li>
+                                    <li>Must contain at least one number</li>
+                                    <li>Cannot be too similar to personal information</li>
+                                    <li>Cannot be a commonly used password</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Role Information -->
+                    <div class="form-section">
+                        <div class="form-section-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle me-2 text-primary"></i>Role Permissions
+                            </h5>
+                        </div>
+                        <div class="form-section-body">
+                            <div class="alert alert-info">
+                                <h6>Role Descriptions:</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <ul class="mb-0">
+                                            <li><strong>Administrator:</strong> Full system access</li>
+                                            <li><strong>Manager:</strong> Bookings, quotations, reports</li>
+                                            <li><strong>Technician:</strong> Assigned bookings only</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <ul class="mb-0">
+                                            <li><strong>Sales Rep:</strong> Quotations, customers</li>
+                                            <li><strong>Support:</strong> Customer inquiries</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'users:admin_user_management' %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>{{ action }} User
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

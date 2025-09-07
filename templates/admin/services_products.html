@@ -1,0 +1,960 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}Services & Products Management - Global Cool-Light E.A LTD{% endblock %}
+
+{% block extra_css %}
+<style>
+    .modern-admin-page {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+
+    .modern-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        margin: 2rem;
+    }
+
+    .modern-header {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: white;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .modern-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+    }
+
+    .modern-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .modern-header p {
+        margin: 0.5rem 0 0 0;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        padding: 2rem;
+        background: #f8fafc;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--accent-color);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .stat-card.services { --accent-color: #3b82f6; }
+    .stat-card.services-active { --accent-color: #10b981; }
+    .stat-card.products { --accent-color: #8b5cf6; }
+    .stat-card.products-active { --accent-color: #f59e0b; }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--accent-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #6b7280;
+        font-weight: 500;
+        margin: 0;
+    }
+
+    .action-buttons {
+        padding: 2rem;
+        background: white;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .btn-modern {
+        border: none;
+        border-radius: 12px;
+        padding: 0.875rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        margin-right: 1rem;
+    }
+
+    .btn-modern-primary {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-modern-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-modern-success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-modern-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    .modern-tabs {
+        background: white;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .modern-tabs .nav-tabs {
+        border: none;
+        padding: 0 2rem;
+    }
+
+    .modern-tabs .nav-link {
+        border: none;
+        border-radius: 0;
+        padding: 1.5rem 2rem;
+        font-weight: 600;
+        color: #6b7280;
+        background: transparent;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+    .modern-tabs .nav-link:hover {
+        color: #4f46e5;
+        background: rgba(79, 70, 229, 0.05);
+    }
+
+    .modern-tabs .nav-link.active {
+        color: #4f46e5;
+        background: rgba(79, 70, 229, 0.05);
+        border-bottom-color: #4f46e5;
+    }
+
+    /* Custom colors for category statistics */
+    .text-purple { color: #8b5cf6 !important; }
+    .border-purple { border-color: #8b5cf6 !important; }
+    .text-teal { color: #14b8a6 !important; }
+    .border-teal { border-color: #14b8a6 !important; }
+
+    .modern-table-container {
+        padding: 2rem;
+        background: white;
+    }
+
+    .modern-table {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .modern-table table {
+        margin: 0;
+        border: none;
+    }
+
+    .modern-table thead th {
+        background: #f8fafc;
+        border: none;
+        padding: 1.5rem 1rem;
+        font-weight: 600;
+        color: #374151;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+    }
+
+    .modern-table tbody td {
+        border: none;
+        padding: 1.5rem 1rem;
+        border-bottom: 1px solid #f3f4f6;
+        vertical-align: middle;
+    }
+
+    .modern-table tbody tr:hover {
+        background: rgba(79, 70, 229, 0.02);
+    }
+
+    .modern-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .item-name {
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 0.25rem;
+    }
+
+    .item-summary {
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin: 0;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .status-active { background: #dcfce7; color: #166534; }
+    .status-inactive { background: #f3f4f6; color: #6b7280; }
+    .status-featured { background: #fef3c7; color: #92400e; }
+    .status-in-stock { background: #dcfce7; color: #166534; }
+    .status-low-stock { background: #fef3c7; color: #92400e; }
+    .status-out-of-stock { background: #fee2e2; color: #dc2626; }
+
+    .action-btn-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .action-btn {
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        font-size: 0.875rem;
+    }
+
+    .action-btn-view {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+    }
+
+    .action-btn-view:hover {
+        background: #3b82f6;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        text-decoration: none;
+    }
+
+    .action-btn-edit {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+    }
+
+    .action-btn-edit:hover {
+        background: #10b981;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        text-decoration: none;
+    }
+
+    .action-btn-delete {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+
+    .action-btn-delete:hover {
+        background: #ef4444;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        text-decoration: none;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #6b7280;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .featured-icon {
+        color: #f59e0b;
+        margin-right: 0.5rem;
+    }
+
+    .stock-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .stock-units {
+        font-size: 0.75rem;
+        color: #6b7280;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Sidebar Start -->
+<div class="sidebar pe-4 pb-3">
+    <nav class="navbar bg-light navbar-light">
+        <a href="{% url 'users:admin_dashboard' %}" class="navbar-brand mx-4 mb-3">
+            <h3 class="text-primary"><i class="fas fa-snowflake me-2"></i>Global Cool-Light</h3>
+        </a>
+        <div class="d-flex align-items-center ms-4 mb-4">
+            <div class="position-relative">
+                <img class="rounded-circle" src="{% static 'admin-img/user.jpg' %}" alt="" style="width: 40px; height: 40px;">
+                <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
+            </div>
+            <div class="ms-3">
+                <h6 class="mb-0">{{ user.get_full_name|default:user.email }}</h6>
+                <span>Admin</span>
+            </div>
+        </div>
+        <div class="navbar-nav w-100">
+            <a href="{% url 'users:admin_dashboard' %}" class="nav-item nav-link"><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
+            <a href="{% url 'users:admin_bookings_list' %}" class="nav-item nav-link"><i class="fa fa-calendar me-2"></i>Bookings</a>
+            <a href="{% url 'users:admin_services_products' %}" class="nav-item nav-link active"><i class="fa fa-tools me-2"></i>Services & Products</a>
+            <a href="#" class="nav-item nav-link"><i class="fa fa-folder me-2"></i>Portfolio</a>
+            <a href="#" class="nav-item nav-link"><i class="fa fa-file-invoice-dollar me-2"></i>Quotations</a>
+            <a href="#" class="nav-item nav-link"><i class="fa fa-users me-2"></i>Customers</a>
+            <a href="#" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Reports</a>
+            <a href="#" class="nav-item nav-link"><i class="fa fa-cog me-2"></i>Settings</a>
+        </div>
+    </nav>
+</div>
+<!-- Sidebar End -->
+
+<!-- Content Start -->
+<div class="content">
+    <!-- Navbar Start -->
+    <nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
+        <a href="{% url 'users:admin_dashboard' %}" class="navbar-brand d-flex d-lg-none me-4">
+            <h2 class="text-primary mb-0"><i class="fa fa-hashtag"></i></h2>
+        </a>
+        <a href="#" class="sidebar-toggler flex-shrink-0">
+            <i class="fa fa-bars"></i>
+        </a>
+        <div class="navbar-nav align-items-center ms-auto">
+            <div class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                    <img class="rounded-circle me-lg-2" src="{% static 'admin-img/user.jpg' %}" alt="" style="width: 40px; height: 40px;">
+                    <span class="d-none d-lg-inline-flex">{{ user.get_full_name|default:user.email }}</span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                    <a href="#" class="dropdown-item">My Profile</a>
+                    <a href="#" class="dropdown-item">Settings</a>
+                    <a href="{% url 'users:admin_logout' %}" class="dropdown-item">Log Out</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- Navbar End -->
+
+    <!-- Page Content Start -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="row g-4">
+            <!-- Page Header -->
+            <div class="col-12">
+                <div class="bg-light rounded h-100 p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <h3 class="mb-0">Services & Products Management</h3>
+                        <div>
+                            <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#addServiceModal">
+                                <i class="fas fa-plus me-1"></i>Add Service
+                            </button>
+                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                                <i class="fas fa-plus me-1"></i>Add Product
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card border-primary">
+                                <div class="card-body text-center">
+                                    <h4 class="text-primary">{{ total_services }}</h4>
+                                    <p class="mb-0">Total Services</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-success">
+                                <div class="card-body text-center">
+                                    <h4 class="text-success">{{ active_services }}</h4>
+                                    <p class="mb-0">Active Services</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-info">
+                                <div class="card-body text-center">
+                                    <h4 class="text-info">{{ total_products }}</h4>
+                                    <p class="mb-0">Total Products</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-warning">
+                                <div class="card-body text-center">
+                                    <h4 class="text-warning">{{ active_products }}</h4>
+                                    <p class="mb-0">Active Products</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category Statistics Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card border-secondary">
+                                <div class="card-body text-center">
+                                    <h4 class="text-secondary">{{ service_categories.count }}</h4>
+                                    <p class="mb-0">Service Categories</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-dark">
+                                <div class="card-body text-center">
+                                    <h4 class="text-dark">{{ product_categories.count }}</h4>
+                                    <p class="mb-0">Product Categories</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-purple">
+                                <div class="card-body text-center">
+                                    <h4 class="text-purple">{{ total_categories }}</h4>
+                                    <p class="mb-0">Total Categories</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-teal">
+                                <div class="card-body text-center">
+                                    <h4 class="text-teal">{{ service_categories.count|add:product_categories.count }}</h4>
+                                    <p class="mb-0">Active Categories</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="btn-group me-3" role="group">
+                                <a href="{% url 'users:admin_service_add' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>Add Service
+                                </a>
+                                <a href="{% url 'users:admin_product_add' %}" class="btn btn-success">
+                                    <i class="fas fa-plus me-2"></i>Add Product
+                                </a>
+                            </div>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addServiceCategoryModal">
+                                    <i class="fas fa-tags me-2"></i>Add Service Category
+                                </button>
+                                <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#addProductCategoryModal">
+                                    <i class="fas fa-tags me-2"></i>Add Product Category
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+            <!-- Modern Tabbed Interface -->
+            <div class="modern-tabs">
+                <ul class="nav nav-tabs" id="servicesProductsTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="services-tab" data-bs-toggle="tab" data-bs-target="#services" type="button" role="tab">
+                            <i class="fas fa-tools me-2"></i>Services ({{ total_services }})
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="products-tab" data-bs-toggle="tab" data-bs-target="#products" type="button" role="tab">
+                            <i class="fas fa-box me-2"></i>Products ({{ total_products }})
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categories" type="button" role="tab">
+                            <i class="fas fa-tags me-2"></i>Categories ({{ total_categories }})
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+                    <div class="tab-content" id="servicesProductsTabContent">
+                        <!-- Services Tab -->
+                        <div class="tab-pane fade show active" id="services" role="tabpanel">
+                            <div class="table-responsive mt-3">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Category</th>
+                                            <th>Price Range</th>
+                                            <th>Status</th>
+                                            <th>Bookings</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for service in services %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    {% if service.is_featured %}
+                                                        <i class="fas fa-star text-warning me-2"></i>
+                                                    {% endif %}
+                                                    <strong>{{ service.name }}</strong>
+                                                </div>
+                                                <small class="text-muted">{{ service.summary|truncatechars:50 }}</small>
+                                            </td>
+                                            <td>{{ service.category.name }}</td>
+                                            <td>{{ service.price_range }}</td>
+                                            <td>
+                                                {% if service.is_active %}
+                                                    <span class="badge bg-success">Active</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">Inactive</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ service.booking_count }}</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="{% url 'users:admin_service_view' service.id %}" class="btn btn-sm btn-outline-info" title="View">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="{% url 'users:admin_service_edit' service.id %}" class="btn btn-sm btn-outline-primary" title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a href="{% url 'users:admin_service_delete' service.id %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="6" class="text-center">No services found.</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Products Tab -->
+                        <div class="tab-pane fade" id="products" role="tabpanel">
+                            <div class="table-responsive mt-3">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Category</th>
+                                            <th>Price</th>
+                                            <th>Stock</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for product in products %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    {% if product.is_featured %}
+                                                        <i class="fas fa-star text-warning me-2"></i>
+                                                    {% endif %}
+                                                    <strong>{{ product.name }}</strong>
+                                                </div>
+                                                <small class="text-muted">{{ product.summary|truncatechars:50 }}</small>
+                                            </td>
+                                            <td>{{ product.category.name }}</td>
+                                            <td>{{ product.price_display }}</td>
+                                            <td>
+                                                <span class="badge 
+                                                    {% if product.stock_status == 'in_stock' %}bg-success
+                                                    {% elif product.stock_status == 'low_stock' %}bg-warning
+                                                    {% elif product.stock_status == 'out_of_stock' %}bg-danger
+                                                    {% else %}bg-secondary{% endif %}">
+                                                    {{ product.get_stock_status_display }}
+                                                </span>
+                                                <br><small>{{ product.stock_quantity }} units</small>
+                                            </td>
+                                            <td>
+                                                {% if product.is_active %}
+                                                    <span class="badge bg-success">Active</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">Inactive</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="{% url 'users:admin_product_view' product.id %}" class="btn btn-sm btn-outline-info" title="View">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="{% url 'users:admin_product_edit' product.id %}" class="btn btn-sm btn-outline-primary" title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a href="{% url 'users:admin_product_delete' product.id %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="6" class="text-center">No products found.</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Categories Tab -->
+                        <div class="tab-pane fade" id="categories" role="tabpanel">
+                            <div class="row mt-3">
+                                <!-- Service Categories Section -->
+                                <div class="col-md-6">
+                                    <div class="card border-primary">
+                                        <div class="card-header bg-primary text-white">
+                                            <h5 class="mb-0">
+                                                <i class="fas fa-tools me-2"></i>Service Categories
+                                                <span class="badge bg-light text-primary ms-2">{{ service_categories.count }}</span>
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Name</th>
+                                                            <th>Services</th>
+                                                            <th>Order</th>
+                                                            <th>Status</th>
+                                                            <th>Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for category in service_categories %}
+                                                        <tr>
+                                                            <td>
+                                                                <strong>{{ category.name }}</strong>
+                                                                {% if category.description %}
+                                                                <br><small class="text-muted">{{ category.description|truncatechars:50 }}</small>
+                                                                {% endif %}
+                                                            </td>
+                                                            <td>
+                                                                <span class="badge bg-info">{{ category.service_count }} services</span>
+                                                            </td>
+                                                            <td>{{ category.order }}</td>
+                                                            <td>
+                                                                {% if category.is_active %}
+                                                                    <span class="badge bg-success">Active</span>
+                                                                {% else %}
+                                                                    <span class="badge bg-secondary">Inactive</span>
+                                                                {% endif %}
+                                                            </td>
+                                                            <td>
+                                                                <div class="btn-group btn-group-sm" role="group">
+                                                                    <button type="button" class="btn btn-outline-info" title="View">
+                                                                        <i class="fas fa-eye"></i>
+                                                                    </button>
+                                                                    <button type="button" class="btn btn-outline-warning" title="Edit">
+                                                                        <i class="fas fa-edit"></i>
+                                                                    </button>
+                                                                    <button type="button" class="btn btn-outline-danger" title="Delete">
+                                                                        <i class="fas fa-trash"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        {% empty %}
+                                                        <tr>
+                                                            <td colspan="5" class="text-center">No service categories found.</td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="mt-3">
+                                                <button type="button" class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-plus me-2"></i>Add Service Category
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Product Categories Section -->
+                                <div class="col-md-6">
+                                    <div class="card border-success">
+                                        <div class="card-header bg-success text-white">
+                                            <h5 class="mb-0">
+                                                <i class="fas fa-box me-2"></i>Product Categories
+                                                <span class="badge bg-light text-success ms-2">{{ product_categories.count }}</span>
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Name</th>
+                                                            <th>Products</th>
+                                                            <th>Order</th>
+                                                            <th>Status</th>
+                                                            <th>Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for category in product_categories %}
+                                                        <tr>
+                                                            <td>
+                                                                <strong>{{ category.name }}</strong>
+                                                                {% if category.description %}
+                                                                <br><small class="text-muted">{{ category.description|truncatechars:50 }}</small>
+                                                                {% endif %}
+                                                            </td>
+                                                            <td>
+                                                                <span class="badge bg-info">{{ category.product_count }} products</span>
+                                                            </td>
+                                                            <td>{{ category.order }}</td>
+                                                            <td>
+                                                                {% if category.is_active %}
+                                                                    <span class="badge bg-success">Active</span>
+                                                                {% else %}
+                                                                    <span class="badge bg-secondary">Inactive</span>
+                                                                {% endif %}
+                                                            </td>
+                                                            <td>
+                                                                <div class="btn-group btn-group-sm" role="group">
+                                                                    <button type="button" class="btn btn-outline-info" title="View">
+                                                                        <i class="fas fa-eye"></i>
+                                                                    </button>
+                                                                    <button type="button" class="btn btn-outline-warning" title="Edit">
+                                                                        <i class="fas fa-edit"></i>
+                                                                    </button>
+                                                                    <button type="button" class="btn btn-outline-danger" title="Delete">
+                                                                        <i class="fas fa-trash"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        {% empty %}
+                                                        <tr>
+                                                            <td colspan="5" class="text-center">No product categories found.</td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="mt-3">
+                                                <button type="button" class="btn btn-success btn-sm">
+                                                    <i class="fas fa-plus me-2"></i>Add Product Category
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Page Content End -->
+</div>
+<!-- Content End -->
+
+<!-- Add Service Modal -->
+<div class="modal fade" id="addServiceModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Service</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">Service creation form will be implemented here.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Product Modal -->
+<div class="modal fade" id="addProductModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">Product creation form will be implemented here.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Service Category Modal -->
+<div class="modal fade" id="addServiceCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-tags me-2"></i>Add Service Category
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="serviceCategoryForm">
+                    <div class="mb-3">
+                        <label for="serviceCategoryName" class="form-label">Category Name</label>
+                        <input type="text" class="form-control" id="serviceCategoryName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="serviceCategoryDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="serviceCategoryDescription" rows="3"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="serviceCategoryOrder" class="form-label">Display Order</label>
+                                <input type="number" class="form-control" id="serviceCategoryOrder" value="0">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check mt-4">
+                                    <input class="form-check-input" type="checkbox" id="serviceCategoryActive" checked>
+                                    <label class="form-check-label" for="serviceCategoryActive">
+                                        Active
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save Category
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Product Category Modal -->
+<div class="modal fade" id="addProductCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-tags me-2"></i>Add Product Category
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="productCategoryForm">
+                    <div class="mb-3">
+                        <label for="productCategoryName" class="form-label">Category Name</label>
+                        <input type="text" class="form-control" id="productCategoryName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="productCategoryDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="productCategoryDescription" rows="3"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="productCategoryOrder" class="form-label">Display Order</label>
+                                <input type="number" class="form-control" id="productCategoryOrder" value="0">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check mt-4">
+                                    <input class="form-check-input" type="checkbox" id="productCategoryActive" checked>
+                                    <label class="form-check-label" for="productCategoryActive">
+                                        Active
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success">
+                    <i class="fas fa-save me-2"></i>Save Category
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

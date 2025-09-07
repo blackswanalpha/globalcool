@@ -1,0 +1,332 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ project.title }} - Portfolio Details{% endblock %}
+
+{% block content %}
+<!-- Include Enhanced Sidebar -->
+{% include 'components/admin_sidebar.html' %}
+
+<!-- Content Start -->
+<div class="content">
+    <!-- Navbar Start -->
+    <nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
+        <a href="#" class="sidebar-toggler flex-shrink-0">
+            <i class="fa fa-bars"></i>
+        </a>
+        <div class="navbar-nav align-items-center ms-auto">
+            <div class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fa fa-user me-lg-2"></i>
+                    <span class="d-none d-lg-inline-flex">{{ user.get_full_name|default:user.username }}</span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                    <a href="{% url 'users:admin_logout' %}" class="dropdown-item">Log Out</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- Navbar End -->
+
+    <!-- Portfolio Detail Start -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="row g-4">
+            <!-- Header -->
+            <div class="col-12">
+                <div class="bg-light rounded p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div>
+                            <h2 class="mb-2">
+                                <i class="fas fa-briefcase me-3 text-primary"></i>{{ project.title }}
+                            </h2>
+                            <div class="d-flex gap-2 mb-2">
+                                {% if project.is_published %}
+                                    <span class="badge bg-success">Published</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Draft</span>
+                                {% endif %}
+                                
+                                {% if project.is_featured %}
+                                    <span class="badge bg-warning">Featured</span>
+                                {% endif %}
+                                
+                                <span class="badge bg-info">{{ project.get_project_type_display|default:"No Type" }}</span>
+                                
+                                {% if project.status == 'completed' %}
+                                    <span class="badge bg-success">{{ project.get_status_display }}</span>
+                                {% elif project.status == 'in_progress' %}
+                                    <span class="badge bg-warning">{{ project.get_status_display }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ project.get_status_display }}</span>
+                                {% endif %}
+                            </div>
+                            <p class="text-muted mb-0">{{ project.client_name|default:"No client specified" }} • {{ project.location|default:"No location specified" }}</p>
+                        </div>
+                        <div class="btn-group">
+                            <a href="{% url 'users:admin_portfolio_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to List
+                            </a>
+                            <a href="{% url 'users:admin_portfolio_edit' project.id %}" class="btn btn-primary">
+                                <i class="fas fa-edit me-2"></i>Edit Project
+                            </a>
+                            <a href="{% url 'portfolio:detail' project.slug %}" class="btn btn-info" target="_blank">
+                                <i class="fas fa-external-link-alt me-2"></i>View Public
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Overview -->
+            <div class="col-lg-8">
+                <div class="bg-light rounded p-4 h-100">
+                    <h4 class="mb-4">
+                        <i class="fas fa-info-circle me-2 text-primary"></i>Project Overview
+                    </h4>
+                    
+                    <!-- Summary -->
+                    <div class="mb-4">
+                        <h6 class="text-primary">Summary</h6>
+                        <p>{{ project.summary|default:"No summary provided" }}</p>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="mb-4">
+                        <h6 class="text-primary">Description</h6>
+                        <div class="border rounded p-3 bg-white">
+                            {{ project.description|safe|default:"No detailed description provided" }}
+                        </div>
+                    </div>
+                    
+                    <!-- Results & Challenges -->
+                    {% if project.results_metrics or project.challenges_solved %}
+                    <div class="row">
+                        {% if project.results_metrics %}
+                        <div class="col-md-6">
+                            <h6 class="text-primary">Results & Metrics</h6>
+                            <div class="border rounded p-3 bg-white mb-3">
+                                {{ project.results_metrics|default:"No results specified" }}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if project.challenges_solved %}
+                        <div class="col-md-6">
+                            <h6 class="text-primary">Challenges Solved</h6>
+                            <div class="border rounded p-3 bg-white mb-3">
+                                {{ project.challenges_solved|default:"No challenges specified" }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Related Services -->
+                    {% if project.services.exists %}
+                    <div class="mb-4">
+                        <h6 class="text-primary">Related Services</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for service in project.services.all %}
+                                <span class="badge bg-primary">{{ service.name }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Project Stats -->
+            <div class="col-lg-4">
+                <div class="bg-light rounded p-4 h-100">
+                    <h4 class="mb-4">
+                        <i class="fas fa-chart-bar me-2 text-primary"></i>Project Statistics
+                    </h4>
+                    
+                    <!-- Timeline -->
+                    <div class="mb-4">
+                        <h6 class="text-primary">Timeline</h6>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Start Date:</span>
+                            <strong>{{ project.start_date|date:"M d, Y"|default:"Not set" }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>End Date:</span>
+                            <strong>{{ project.end_date|date:"M d, Y"|default:"Not set" }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Duration:</span>
+                            <strong>{{ project.duration_days|default:"—" }} days</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Completion:</span>
+                            <strong>{{ project.completion_percentage }}%</strong>
+                        </div>
+                        
+                        <!-- Progress Bar -->
+                        <div class="progress mt-2" style="height: 8px;">
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: {{ project.completion_percentage }}%"
+                                 aria-valuenow="{{ project.completion_percentage }}" 
+                                 aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Engagement -->
+                    <div class="mb-4">
+                        <h6 class="text-primary">Engagement</h6>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Views:</span>
+                            <strong>{{ project.view_count }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Images:</span>
+                            <strong>{{ images.count }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Testimonials:</span>
+                            <strong>{{ testimonials.count }}</strong>
+                        </div>
+                    </div>
+                    
+                    <!-- Timestamps -->
+                    <div class="mb-4">
+                        <h6 class="text-primary">Timestamps</h6>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Created:</span>
+                            <strong>{{ project.created_at|date:"M d, Y" }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Updated:</span>
+                            <strong>{{ project.updated_at|date:"M d, Y" }}</strong>
+                        </div>
+                    </div>
+                    
+                    <!-- SEO Info -->
+                    {% if project.meta_title or project.meta_description %}
+                    <div class="mb-4">
+                        <h6 class="text-primary">SEO Information</h6>
+                        {% if project.meta_title %}
+                        <div class="mb-2">
+                            <small class="text-muted">Meta Title:</small>
+                            <div class="small">{{ project.meta_title }}</div>
+                        </div>
+                        {% endif %}
+                        {% if project.meta_description %}
+                        <div>
+                            <small class="text-muted">Meta Description:</small>
+                            <div class="small">{{ project.meta_description }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Project Images -->
+            {% if images %}
+            <div class="col-12">
+                <div class="bg-light rounded p-4">
+                    <h4 class="mb-4">
+                        <i class="fas fa-images me-2 text-primary"></i>Project Images ({{ images.count }})
+                    </h4>
+                    <div class="row g-3">
+                        {% for image in images %}
+                        <div class="col-md-3">
+                            <div class="card">
+                                <img src="{{ image.image.url }}" class="card-img-top" alt="{{ image.title }}" 
+                                     style="height: 200px; object-fit: cover;">
+                                <div class="card-body p-2">
+                                    <h6 class="card-title mb-1">{{ image.title|default:"Untitled" }}</h6>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">{{ image.get_image_type_display }}</small>
+                                        <div>
+                                            {% if image.is_featured %}
+                                                <span class="badge bg-warning">Featured</span>
+                                            {% endif %}
+                                            <small class="text-muted">Order: {{ image.order }}</small>
+                                        </div>
+                                    </div>
+                                    {% if image.description %}
+                                        <p class="card-text small mt-2">{{ image.description|truncatechars:100 }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Testimonials -->
+            {% if testimonials %}
+            <div class="col-12">
+                <div class="bg-light rounded p-4">
+                    <h4 class="mb-4">
+                        <i class="fas fa-quote-left me-2 text-primary"></i>Testimonials ({{ testimonials.count }})
+                    </h4>
+                    <div class="row g-3">
+                        {% for testimonial in testimonials %}
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-start mb-3">
+                                        {% if testimonial.author_image %}
+                                            <img src="{{ testimonial.author_image.url }}" 
+                                                 alt="{{ testimonial.author_name }}" 
+                                                 class="rounded-circle me-3" 
+                                                 style="width: 50px; height: 50px; object-fit: cover;">
+                                        {% else %}
+                                            <div class="bg-primary rounded-circle me-3 d-flex align-items-center justify-content-center" 
+                                                 style="width: 50px; height: 50px;">
+                                                <i class="fas fa-user text-white"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <h6 class="mb-1">{{ testimonial.author_name }}</h6>
+                                            <small class="text-muted">
+                                                {{ testimonial.author_title|default:"" }}
+                                                {% if testimonial.author_company %}
+                                                    {% if testimonial.author_title %} at {% endif %}{{ testimonial.author_company }}
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <blockquote class="blockquote mb-3">
+                                        <p class="mb-0">"{{ testimonial.quote }}"</p>
+                                    </blockquote>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= testimonial.rating %}
+                                                    <i class="fas fa-star text-warning"></i>
+                                                {% else %}
+                                                    <i class="far fa-star text-muted"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <div>
+                                            {% if testimonial.is_featured %}
+                                                <span class="badge bg-warning">Featured</span>
+                                            {% endif %}
+                                            {% if testimonial.is_published %}
+                                                <span class="badge bg-success">Published</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Draft</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <!-- Portfolio Detail End -->
+</div>
+<!-- Content End -->
+{% endblock %}

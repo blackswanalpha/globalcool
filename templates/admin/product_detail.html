@@ -1,0 +1,640 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .modern-detail {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    .detail-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+    }
+
+    .detail-header {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        color: white;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .detail-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+    }
+
+    .detail-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .detail-header p {
+        margin: 0.5rem 0 0 0;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+        font-size: 1.1rem;
+    }
+
+    .modern-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    .modern-card:hover {
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        transform: translateY(-2px);
+    }
+
+    .card-header-modern {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-bottom: 2px solid #e2e8f0;
+        padding: 1.5rem;
+        font-weight: 600;
+        color: #334155;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .card-header-modern i {
+        color: #059669;
+        font-size: 1.2rem;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .status-active { background: #dcfce7; color: #166534; }
+    .status-inactive { background: #f3f4f6; color: #6b7280; }
+    .status-featured { background: #fef3c7; color: #92400e; }
+    .status-in-stock { background: #dcfce7; color: #166534; }
+    .status-out-of-stock { background: #fee2e2; color: #dc2626; }
+
+    .stat-card {
+        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        border: 1px solid #d1fae5;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #047857;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #64748b;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .breadcrumb-modern {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border-radius: 50px;
+        padding: 0.75rem 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .breadcrumb-modern a {
+        color: #059669;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .breadcrumb-modern a:hover {
+        color: #047857;
+    }
+
+    .action-btn-modern {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        border: none;
+        border-radius: 12px;
+        padding: 0.875rem 1.5rem;
+        font-weight: 600;
+        color: white;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .action-btn-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(5, 150, 105, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    .action-btn-secondary {
+        background: white;
+        border: 2px solid #e2e8f0;
+        color: #64748b;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .action-btn-secondary:hover {
+        border-color: #cbd5e1;
+        background: #f8fafc;
+        color: #475569;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .action-btn-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    }
+
+    .action-btn-danger:hover {
+        box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+    }
+
+    .image-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .image-card {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .image-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .image-card img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+    }
+
+    .image-card-body {
+        padding: 1rem;
+        background: white;
+    }
+
+    .price-display {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #047857;
+    }
+
+    .price-original {
+        text-decoration: line-through;
+        color: #6b7280;
+        font-size: 1.2rem;
+    }
+
+    .price-sale {
+        color: #dc2626;
+    }
+
+    .spec-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .spec-list li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .spec-list li:last-child {
+        border-bottom: none;
+    }
+
+    .spec-label {
+        font-weight: 500;
+        color: #374151;
+    }
+
+    .spec-value {
+        color: #6b7280;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="modern-detail">
+    <div class="container-fluid">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb-modern">
+            <a href="{% url 'users:admin_services_products' %}">
+                <i class="fas fa-home me-2"></i>Services & Products
+            </a>
+            <span class="mx-2 text-muted">/</span>
+            <span class="text-muted">{{ product.name }}</span>
+        </nav>
+
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="detail-container">
+                    <!-- Header -->
+                    <div class="detail-header">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h1>
+                                    <i class="fas fa-box me-3"></i>{{ product.name }}
+                                </h1>
+                                <p class="mb-0">{{ product.category.name }} Product</p>
+                            </div>
+                            <div class="d-flex gap-3">
+                                <a href="{% url 'users:admin_product_edit' product.id %}" class="action-btn-modern">
+                                    <i class="fas fa-edit"></i>Edit Product
+                                </a>
+                                <a href="{% url 'users:admin_services_products' %}" class="action-btn-modern action-btn-secondary">
+                                    <i class="fas fa-arrow-left"></i>Back
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Content -->
+                    <div class="p-4">
+                        <div class="row g-4">
+                            <!-- Main Content -->
+                            <div class="col-lg-8">
+                                <!-- Product Overview -->
+                                <div class="modern-card mb-4">
+                                    <div class="card-header-modern">
+                                        <i class="fas fa-info-circle"></i>
+                                        <span>Product Overview</span>
+                                    </div>
+                                    <div class="p-4">
+                                        {% if product.summary %}
+                                        <div class="mb-4">
+                                            <h6 class="text-muted mb-2">SUMMARY</h6>
+                                            <p class="lead mb-0">{{ product.summary }}</p>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if product.description %}
+                                        <div class="mb-0">
+                                            <h6 class="text-muted mb-3">DETAILED DESCRIPTION</h6>
+                                            <div class="border rounded-3 p-4" style="background: #fafbfc;">
+                                                {{ product.description|safe }}
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Pricing & Inventory -->
+                                <div class="modern-card mb-4">
+                                    <div class="card-header-modern">
+                                        <i class="fas fa-dollar-sign"></i>
+                                        <span>Pricing & Inventory</span>
+                                    </div>
+                                    <div class="p-4">
+                                        <!-- Price Display -->
+                                        <div class="row g-4 mb-4">
+                                            <div class="col-md-6">
+                                                <div class="text-center p-4 bg-light rounded-3">
+                                                    <h6 class="text-muted mb-2">CURRENT PRICE</h6>
+                                                    <div class="price-display">
+                                                        {% if product.sale_price %}
+                                                            <span class="price-sale">KSh {{ product.sale_price|floatformat:2 }}</span>
+                                                            <div class="price-original mt-1">KSh {{ product.price|floatformat:2 }}</div>
+                                                        {% else %}
+                                                            KSh {{ product.price|floatformat:2|default:"0.00" }}
+                                                        {% endif %}
+                                                    </div>
+                                                    {% if product.sale_price %}
+                                                    <span class="status-badge bg-danger text-white mt-2">
+                                                        <i class="fas fa-tag me-1"></i>On Sale
+                                                    </span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="text-center p-4 bg-light rounded-3">
+                                                    <h6 class="text-muted mb-2">STOCK STATUS</h6>
+                                                    <div class="mb-3">
+                                                        <span class="h4 fw-bold text-primary">{{ product.stock_quantity|default:0 }}</span>
+                                                        <span class="text-muted"> units</span>
+                                                    </div>
+                                                    <span class="status-badge
+                                                        {% if product.stock_status == 'in_stock' %}status-in-stock
+                                                        {% elif product.stock_status == 'low_stock' %}status-featured
+                                                        {% elif product.stock_status == 'out_of_stock' %}status-out-of-stock
+                                                        {% else %}status-inactive{% endif %}">
+                                                        <i class="fas fa-{% if product.stock_status == 'in_stock' %}check-circle{% elif product.stock_status == 'low_stock' %}exclamation-triangle{% else %}times-circle{% endif %}"></i>
+                                                        {{ product.get_stock_status_display|default:"Unknown" }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Additional Details -->
+                                        <div class="row g-4">
+                                            {% if product.sku %}
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3">
+                                                    <i class="fas fa-barcode text-muted fa-2x"></i>
+                                                    <div>
+                                                        <h6 class="mb-1">Product SKU</h6>
+                                                        <p class="mb-0"><code>{{ product.sku }}</code></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                            {% if product.weight %}
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3">
+                                                    <i class="fas fa-weight text-muted fa-2x"></i>
+                                                    <div>
+                                                        <h6 class="mb-1">Weight</h6>
+                                                        <p class="mb-0">{{ product.weight }} kg</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                <!-- Product Specifications -->
+                                <div class="modern-card mb-4">
+                                    <div class="card-header-modern">
+                                        <i class="fas fa-cogs"></i>
+                                        <span>Product Specifications</span>
+                                    </div>
+                                    <div class="p-4">
+                                        <ul class="spec-list">
+                                            {% if product.dimensions %}
+                                            <li>
+                                                <span class="spec-label">
+                                                    <i class="fas fa-ruler-combined me-2 text-muted"></i>Dimensions
+                                                </span>
+                                                <span class="spec-value">{{ product.dimensions }}</span>
+                                            </li>
+                                            {% endif %}
+                                            {% if product.weight %}
+                                            <li>
+                                                <span class="spec-label">
+                                                    <i class="fas fa-weight-hanging me-2 text-muted"></i>Weight
+                                                </span>
+                                                <span class="spec-value">{{ product.weight }} kg</span>
+                                            </li>
+                                            {% endif %}
+                                            {% if product.warranty %}
+                                            <li>
+                                                <span class="spec-label">
+                                                    <i class="fas fa-shield-alt me-2 text-muted"></i>Warranty
+                                                </span>
+                                                <span class="spec-value">{{ product.warranty }}</span>
+                                            </li>
+                                            {% endif %}
+                                            <li>
+                                                <span class="spec-label">
+                                                    <i class="fas fa-link me-2 text-muted"></i>URL Slug
+                                                </span>
+                                                <span class="spec-value"><code>{{ product.slug }}</code></span>
+                                            </li>
+                                        </ul>
+
+                                        {% if product.features_list %}
+                                        <div class="mt-4">
+                                            <h6 class="text-muted mb-3">KEY FEATURES</h6>
+                                            <ul class="feature-list">
+                                                {% for feature in product.features_list %}
+                                                <li>
+                                                    <i class="fas fa-check-circle"></i>
+                                                    <span>{{ feature }}</span>
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if product.specifications %}
+                                        <div class="mt-4">
+                                            <h6 class="text-muted mb-3">TECHNICAL SPECIFICATIONS</h6>
+                                            <div class="p-4 bg-light rounded-3">
+                                                {{ product.specifications|linebreaks }}
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+
+                                <!-- Product Images -->
+                                {% if product.images.all %}
+                                <div class="modern-card mb-4">
+                                    <div class="card-header-modern">
+                                        <i class="fas fa-images"></i>
+                                        <span>Product Gallery</span>
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="image-gallery">
+                                            {% for image in product.images.all %}
+                                            <div class="image-card">
+                                                <img src="{{ image.image.url }}" alt="{{ image.title|default:'Product Image' }}">
+                                                <div class="image-card-body">
+                                                    <h6 class="mb-2">{{ image.title|default:"Untitled" }}</h6>
+                                                    {% if image.description %}
+                                                    <p class="text-muted small mb-2">{{ image.description|truncatechars:60 }}</p>
+                                                    {% endif %}
+                                                    {% if image.is_featured %}
+                                                    <span class="status-badge status-featured">
+                                                        <i class="fas fa-star"></i>Featured
+                                                    </span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Sidebar -->
+                            <div class="col-lg-4">
+                                <!-- Status & Settings -->
+                                <div class="modern-card mb-4">
+                                    <div class="card-header-modern">
+                                        <i class="fas fa-toggle-on"></i>
+                                        <span>Status & Visibility</span>
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="d-flex align-items-center justify-content-between mb-3 p-3 rounded-3" style="background: {% if product.is_active %}#dcfce7{% else %}#f3f4f6{% endif %};">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <i class="fas fa-{% if product.is_active %}eye{% else %}eye-slash{% endif %} fa-lg" style="color: {% if product.is_active %}#166534{% else %}#6b7280{% endif %};"></i>
+                                                <div>
+                                                    <h6 class="mb-0">Product Status</h6>
+                                                    <small class="text-muted">Visibility to customers</small>
+                                                </div>
+                                            </div>
+                                            <span class="status-badge {% if product.is_active %}status-active{% else %}status-inactive{% endif %}">
+                                                {% if product.is_active %}Active{% else %}Inactive{% endif %}
+                                            </span>
+                                        </div>
+
+                                        <div class="d-flex align-items-center justify-content-between mb-3 p-3 rounded-3" style="background: {% if product.is_featured %}#fef3c7{% else %}#f3f4f6{% endif %};">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <i class="fas fa-star fa-lg" style="color: {% if product.is_featured %}#92400e{% else %}#6b7280{% endif %};"></i>
+                                                <div>
+                                                    <h6 class="mb-0">Featured Product</h6>
+                                                    <small class="text-muted">Homepage prominence</small>
+                                                </div>
+                                            </div>
+                                            <span class="status-badge {% if product.is_featured %}status-featured{% else %}status-inactive{% endif %}">
+                                                {% if product.is_featured %}Featured{% else %}Standard{% endif %}
+                                            </span>
+                                        </div>
+
+                                        <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background: {% if product.is_in_stock %}#dcfce7{% else %}#fee2e2{% endif %};">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <i class="fas fa-{% if product.is_in_stock %}check-circle{% else %}times-circle{% endif %} fa-lg" style="color: {% if product.is_in_stock %}#166534{% else %}#dc2626{% endif %};"></i>
+                                                <div>
+                                                    <h6 class="mb-0">Stock Status</h6>
+                                                    <small class="text-muted">Inventory availability</small>
+                                                </div>
+                                            </div>
+                                            <span class="status-badge {% if product.is_in_stock %}status-in-stock{% else %}status-out-of-stock{% endif %}">
+                                                {% if product.is_in_stock %}In Stock{% else %}Out of Stock{% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Product Statistics -->
+                                <div class="modern-card mb-4">
+                                    <div class="card-header-modern">
+                                        <i class="fas fa-chart-bar"></i>
+                                        <span>Performance Metrics</span>
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="row g-3">
+                                            <div class="col-6">
+                                                <div class="stat-card">
+                                                    <div class="stat-number">{{ product.view_count|default:0 }}</div>
+                                                    <div class="stat-label">Views</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="stat-card">
+                                                    <div class="stat-number">{{ product.order_count|default:0 }}</div>
+                                                    <div class="stat-label">Orders</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-4 pt-4 border-top">
+                                            <div class="row text-center">
+                                                <div class="col-6">
+                                                    <div class="text-muted small mb-1">CREATED</div>
+                                                    <div class="fw-semibold">{{ product.created_at|date:"M d, Y" }}</div>
+                                                    <div class="text-muted small">{{ product.created_at|date:"H:i" }}</div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="text-muted small mb-1">UPDATED</div>
+                                                    <div class="fw-semibold">{{ product.updated_at|date:"M d, Y" }}</div>
+                                                    <div class="text-muted small">{{ product.updated_at|date:"H:i" }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- SEO Information -->
+                                {% if product.meta_title or product.meta_description %}
+                                <div class="modern-card mb-4">
+                                    <div class="card-header-modern">
+                                        <i class="fas fa-search"></i>
+                                        <span>SEO Settings</span>
+                                    </div>
+                                    <div class="p-4">
+                                        {% if product.meta_title %}
+                                        <div class="mb-3">
+                                            <h6 class="text-muted mb-2">META TITLE</h6>
+                                            <p class="mb-0 p-3 bg-light rounded-3">{{ product.meta_title }}</p>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if product.meta_description %}
+                                        <div class="mb-0">
+                                            <h6 class="text-muted mb-2">META DESCRIPTION</h6>
+                                            <p class="mb-0 p-3 bg-light rounded-3">{{ product.meta_description }}</p>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                <!-- Action Buttons -->
+                                <div class="modern-card sticky-top" style="top: 2rem;">
+                                    <div class="p-4">
+                                        <a href="{% url 'users:admin_product_edit' product.id %}" class="action-btn-modern w-100 mb-3">
+                                            <i class="fas fa-edit"></i>Edit Product
+                                        </a>
+                                        <a href="{{ product.get_absolute_url }}" class="action-btn-modern action-btn-secondary w-100 mb-3" target="_blank">
+                                            <i class="fas fa-external-link-alt"></i>View on Website
+                                        </a>
+                                        <a href="{% url 'users:admin_product_delete' product.id %}" class="action-btn-modern action-btn-danger w-100">
+                                            <i class="fas fa-trash"></i>Delete Product
+                                        </a>
+
+                                        <div class="mt-4 p-3 bg-light rounded-3">
+                                            <small class="text-muted">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                <strong>Quick Tip:</strong> Use the edit button to modify product details or the delete button to remove this product permanently.
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

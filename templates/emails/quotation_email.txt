@@ -1,0 +1,50 @@
+{{ company_name }}
+Quotation {{ quotation.quote_number }}
+
+Dear {{ client.name }},
+
+Thank you for your interest in our HVAC services. Please find below your detailed quotation:
+
+QUOTATION DETAILS
+=================
+Title: {{ quotation.title }}
+Quotation Number: {{ quotation.quote_number }}
+Date: {{ quotation.created_at|date:"F d, Y" }}
+Valid Until: {{ quotation.valid_until|date:"F d, Y" }}
+
+{% if quotation.description %}
+Description:
+{{ quotation.description }}
+{% endif %}
+
+LINE ITEMS
+==========
+{% for item in quotation.get_items %}
+{{ item.description }}
+Quantity: {{ item.quantity }} | Unit Price: KSh {{ item.unit_price|floatformat:2 }} | Total: KSh {{ item.total|floatformat:2 }}
+{% endfor %}
+
+FINANCIAL SUMMARY
+=================
+Subtotal: KSh {{ quotation.subtotal|floatformat:2 }}
+Tax ({{ quotation.tax_rate }}%): KSh {{ quotation.tax_amount|floatformat:2 }}
+{% if quotation.discount_amount > 0 %}Discount: -KSh {{ quotation.discount_amount|floatformat:2 }}{% endif %}
+TOTAL: KSh {{ quotation.total|floatformat:2 }}
+
+{% if quotation.terms_and_conditions %}
+TERMS AND CONDITIONS
+====================
+{{ quotation.terms_and_conditions }}
+{% endif %}
+
+If you have any questions about this quotation, please don't hesitate to contact us.
+
+We look forward to working with you!
+
+Best regards,
+{{ company_name }} Team
+
+Contact Information:
+Email: {{ company_email }}
+Phone: {{ company_phone }}
+Professional HVAC Services | Installation | Maintenance | Repair

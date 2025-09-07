@@ -1,0 +1,195 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}Delete User - Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+.delete-confirmation {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 2rem;
+    text-align: center;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.delete-icon {
+    width: 80px;
+    height: 80px;
+    background: #f8d7da;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: #721c24;
+    font-size: 2rem;
+}
+
+.user-info {
+    background: #f8f9fa;
+    border-radius: 6px;
+    padding: 1rem;
+    margin: 1.5rem 0;
+}
+
+.user-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 1rem;
+}
+
+.warning-list {
+    text-align: left;
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 6px;
+    padding: 1rem;
+    margin: 1.5rem 0;
+}
+
+.warning-list ul {
+    margin-bottom: 0;
+    padding-left: 1.5rem;
+}
+
+.warning-list li {
+    margin-bottom: 0.5rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Include Enhanced Sidebar -->
+{% include 'components/admin_sidebar.html' %}
+
+<!-- Content Start -->
+<div class="content">
+    <!-- Include Enhanced Header -->
+    {% include 'components/admin_header.html' %}
+
+    <!-- Page Header -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h1 class="h3 mb-0 text-gray-800">
+                            <i class="fas fa-user-times me-2 text-danger"></i>Delete User
+                        </h1>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a href="{% url 'users:admin_dashboard' %}">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item">
+                                    <a href="{% url 'users:admin_user_management' %}">User Management</a>
+                                </li>
+                                <li class="breadcrumb-item active">Delete User</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <a href="{% url 'users:admin_user_management' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Users
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Content -->
+    <div class="container-fluid px-4 pb-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="delete-confirmation">
+                    <div class="delete-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    
+                    <h4 class="text-danger mb-3">Confirm User Deletion</h4>
+                    <p class="text-muted mb-4">
+                        Are you sure you want to permanently delete this user account? This action cannot be undone.
+                    </p>
+                    
+                    <!-- User Information -->
+                    <div class="user-info">
+                        {% if user_to_delete.profile.avatar %}
+                            <img src="{{ user_to_delete.profile.avatar.url }}" alt="Avatar" class="user-avatar">
+                        {% else %}
+                            <img src="{% static 'admin-img/user.jpg' %}" alt="Default Avatar" class="user-avatar">
+                        {% endif %}
+                        <h5 class="mb-1">{{ user_to_delete.get_full_name|default:user_to_delete.username }}</h5>
+                        <p class="text-muted mb-1">{{ user_to_delete.email }}</p>
+                        <span class="badge bg-secondary">{{ user_to_delete.profile.get_role_display }}</span>
+                        
+                        <div class="row mt-3">
+                            <div class="col-6">
+                                <small class="text-muted d-block">Joined</small>
+                                <small>{{ user_to_delete.date_joined|date:"M d, Y" }}</small>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">Last Login</small>
+                                <small>
+                                    {% if user_to_delete.last_login %}
+                                        {{ user_to_delete.last_login|date:"M d, Y" }}
+                                    {% else %}
+                                        Never
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Warning Information -->
+                    <div class="warning-list">
+                        <h6><i class="fas fa-exclamation-triangle me-2"></i>What will be deleted:</h6>
+                        <ul>
+                            <li>User account and profile information</li>
+                            <li>All associated login credentials</li>
+                            <li>User preferences and settings</li>
+                            <li>Access permissions and role assignments</li>
+                            {% if user_to_delete.profile.avatar %}
+                            <li>Profile avatar and uploaded files</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    
+                    <!-- Confirmation Form -->
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        
+                        <div class="form-group mb-4">
+                            <label class="form-label text-start d-block">
+                                Type <strong>"{{ user_to_delete.username }}"</strong> to confirm deletion:
+                            </label>
+                            <input type="text" class="form-control" name="confirmation" required 
+                                   placeholder="Enter username to confirm">
+                            <div class="form-text">This helps prevent accidental deletions</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-center gap-3">
+                            <a href="{% url 'users:admin_user_management' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Delete User Permanently
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-4">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            This action is irreversible. Consider deactivating the user instead if you might need to restore access later.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

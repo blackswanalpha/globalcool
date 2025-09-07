@@ -1,0 +1,51 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Sitemap - {{ site_settings.company_name }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <section class="section">
+        <div class="container">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-4xl font-heading font-bold text-gray-900 mb-8">Sitemap</h1>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="text-lg font-semibold mb-4">Main Pages</h3>
+                            <ul class="space-y-2">
+                                <li><a href="{% url 'core:home' %}" class="text-primary-500 hover:text-primary-600">Home</a></li>
+                                <li><a href="{% url 'core:about' %}" class="text-primary-500 hover:text-primary-600">About Us</a></li>
+                                <li><a href="{% url 'core:contact' %}" class="text-primary-500 hover:text-primary-600">Contact</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="text-lg font-semibold mb-4">Services</h3>
+                            <ul class="space-y-2">
+                                <li><a href="{% url 'services:list' %}" class="text-primary-500 hover:text-primary-600">All Services</a></li>
+                                <li><a href="#" class="text-primary-500 hover:text-primary-600">AC Installation</a></li>
+                                <li><a href="#" class="text-primary-500 hover:text-primary-600">Maintenance</a></li>
+                                <li><a href="#" class="text-primary-500 hover:text-primary-600">Repair Services</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="text-lg font-semibold mb-4">Other</h3>
+                            <ul class="space-y-2">
+                                <li><a href="{% url 'portfolio:list' %}" class="text-primary-500 hover:text-primary-600">Portfolio</a></li>
+                                <li><a href="{% url 'blog:list' %}" class="text-primary-500 hover:text-primary-600">Blog</a></li>
+                                <li><a href="{% url 'leads:quote' %}" class="text-primary-500 hover:text-primary-600">Get Quote</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

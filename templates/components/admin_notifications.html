@@ -1,0 +1,109 @@
+<!-- Admin Notifications Dropdown Component -->
+<!-- Usage: {% include 'components/admin_notifications.html' with notifications=notification_list %} -->
+
+<div class="dropdown">
+    <button class="header-notification" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications">
+        <i class="fas fa-bell"></i>
+        {% if notifications.count > 0 %}
+        <span class="notification-badge" id="notificationBadge"></span>
+        {% endif %}
+    </button>
+    <div class="dropdown-menu dropdown-menu-end" style="width: 320px;">
+        <div class="dropdown-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Notifications</h6>
+            <small class="text-muted">{{ notifications.count|default:0 }} new</small>
+        </div>
+        <div class="dropdown-divider"></div>
+        
+        {% for notification in notifications|slice:":5" %}
+        <a href="{% if notification.url %}{{ notification.url }}{% else %}#{% endif %}" class="dropdown-item py-3">
+            <div class="d-flex align-items-start">
+                <div class="flex-shrink-0 me-3">
+                    {% if notification.type == 'booking' %}
+                        <i class="fas fa-calendar-check text-primary"></i>
+                    {% elif notification.type == 'quote' %}
+                        <i class="fas fa-file-invoice text-warning"></i>
+                    {% elif notification.type == 'service' %}
+                        <i class="fas fa-tools text-success"></i>
+                    {% elif notification.type == 'customer' %}
+                        <i class="fas fa-user text-info"></i>
+                    {% elif notification.type == 'system' %}
+                        <i class="fas fa-cog text-secondary"></i>
+                    {% elif notification.type == 'error' %}
+                        <i class="fas fa-exclamation-triangle text-danger"></i>
+                    {% else %}
+                        <i class="fas fa-info-circle text-info"></i>
+                    {% endif %}
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="mb-1">{{ notification.title|truncatechars:30 }}</h6>
+                    <p class="mb-1 small text-muted">{{ notification.message|truncatechars:60 }}</p>
+                    <small class="text-muted">
+                        {% if notification.created_at %}
+                            {{ notification.created_at|timesince }} ago
+                        {% else %}
+                            Just now
+                        {% endif %}
+                    </small>
+                </div>
+                {% if not notification.is_read %}
+                <div class="flex-shrink-0">
+                    <span class="badge bg-primary rounded-pill">New</span>
+                </div>
+                {% endif %}
+            </div>
+        </a>
+        {% empty %}
+        <div class="dropdown-item-text text-center py-4">
+            <i class="fas fa-bell-slash fa-2x text-muted mb-2"></i>
+            <p class="mb-0 text-muted">No new notifications</p>
+        </div>
+        {% endfor %}
+        
+        {% if notifications.count > 5 %}
+        <div class="dropdown-divider"></div>
+        <a href="{% url 'users:admin_notifications' %}" class="dropdown-item text-center">
+            <small>View all {{ notifications.count }} notifications</small>
+        </a>
+        {% endif %}
+        
+        {% if notifications.count > 0 %}
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item-text text-center">
+            <button class="btn btn-sm btn-outline-primary" onclick="markAllNotificationsRead()">
+                <i class="fas fa-check me-1"></i>Mark all as read
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function markAllNotificationsRead() {
+    // This would typically make an AJAX call to mark notifications as read
+    fetch('{% url "users:mark_notifications_read" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update UI to reflect read status
+            document.querySelectorAll('.notification-badge').forEach(badge => {
+                badge.style.display = 'none';
+            });
+            document.querySelectorAll('.badge.bg-primary').forEach(badge => {
+                badge.remove();
+            });
+            // Update notification count
+            document.querySelector('.dropdown-header small').textContent = '0 new';
+        }
+    })
+    .catch(error => {
+        console.error('Error marking notifications as read:', error);
+    });
+}
+</script>

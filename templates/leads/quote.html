@@ -1,0 +1,196 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Get Free Quote - {{ site_settings.company_name }}{% endblock %}
+{% block description %}Request a free quote for professional HVAC services in Kenya. Get personalized pricing for installation, maintenance, or repair services.{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-20">
+        <div class="container">
+            <div class="max-w-3xl mx-auto text-center">
+                <h1 class="text-4xl md:text-5xl font-heading font-bold mb-6">Get Your Free Quote</h1>
+                <p class="text-xl text-gray-200">Tell us about your HVAC needs and we'll provide you with a personalized quote within 24 hours.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quote Form -->
+    <section class="section">
+        <div class="container">
+            <div class="max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Form -->
+                    <div class="lg:col-span-2">
+                        <div class="card">
+                            <div class="card-body">
+                                <h2 class="text-2xl font-heading font-bold text-gray-900 mb-6">Request Your Quote</h2>
+                                
+                                <form method="post" class="space-y-6">
+                                    {% csrf_token %}
+
+                                    <!-- Display form errors -->
+                                    {% if form.non_field_errors %}
+                                        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                                            {{ form.non_field_errors }}
+                                        </div>
+                                    {% endif %}
+
+                                    <!-- Personal Information -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label for="{{ form.contact_name.id_for_label }}" class="form-label">Full Name *</label>
+                                            {{ form.contact_name }}
+                                            {% if form.contact_name.errors %}
+                                                <div class="text-red-600 text-sm mt-1">{{ form.contact_name.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <label for="{{ form.contact_phone.id_for_label }}" class="form-label">Phone Number *</label>
+                                            {{ form.contact_phone }}
+                                            {% if form.contact_phone.errors %}
+                                                <div class="text-red-600 text-sm mt-1">{{ form.contact_phone.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label for="{{ form.contact_email.id_for_label }}" class="form-label">Email Address *</label>
+                                            {{ form.contact_email }}
+                                            {% if form.contact_email.errors %}
+                                                <div class="text-red-600 text-sm mt-1">{{ form.contact_email.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <label for="{{ form.service.id_for_label }}" class="form-label">Service Type *</label>
+                                            {{ form.service }}
+                                            {% if form.service.errors %}
+                                                <div class="text-red-600 text-sm mt-1">{{ form.service.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <!-- Subject and Priority -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label for="{{ form.subject.id_for_label }}" class="form-label">Subject *</label>
+                                            {{ form.subject }}
+                                            {% if form.subject.errors %}
+                                                <div class="text-red-600 text-sm mt-1">{{ form.subject.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <label for="{{ form.priority.id_for_label }}" class="form-label">Priority Level</label>
+                                            {{ form.priority }}
+                                            {% if form.priority.errors %}
+                                                <div class="text-red-600 text-sm mt-1">{{ form.priority.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <!-- Project Description -->
+                                    <div>
+                                        <label for="{{ form.message.id_for_label }}" class="form-label">Project Details *</label>
+                                        {{ form.message }}
+                                        {% if form.message.errors %}
+                                            <div class="text-red-600 text-sm mt-1">{{ form.message.errors.0 }}</div>
+                                        {% endif %}
+                                        <div class="text-sm text-gray-500 mt-1">
+                                            Please provide details about your HVAC needs, property size, current system, specific requirements, etc.
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Submit Button -->
+                                    <button type="submit" class="btn-primary w-full btn-lg">
+                                        Request Free Quote
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sidebar -->
+                    <div class="space-y-6">
+                        <!-- Why Choose Us -->
+                        <div class="card">
+                            <div class="card-body">
+                                <h3 class="text-lg font-heading font-semibold text-gray-900 mb-4">Why Choose Us?</h3>
+                                <ul class="space-y-3 text-sm">
+                                    <li class="flex items-start space-x-2">
+                                        <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span>Free, no-obligation quotes</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span>Licensed & insured professionals</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span>24-hour quote turnaround</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span>Competitive pricing</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span>Quality workmanship guarantee</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Contact Info -->
+                        <div class="card">
+                            <div class="card-body">
+                                <h3 class="text-lg font-heading font-semibold text-gray-900 mb-4">Need Help?</h3>
+                                <div class="space-y-3 text-sm">
+                                    <div class="flex items-center space-x-2">
+                                        <svg class="w-4 h-4 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                                        </svg>
+                                        <span>+254 700 000 000</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <svg class="w-4 h-4 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                                        </svg>
+                                        <span>info@globalcool-light.com</span>
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <a href="{% url 'core:contact' %}" class="btn-outline w-full text-center">Contact Us</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Emergency Service -->
+                        <div class="card bg-red-50 border-red-200">
+                            <div class="card-body">
+                                <h3 class="text-lg font-heading font-semibold text-red-900 mb-2">Emergency Service</h3>
+                                <p class="text-sm text-red-700 mb-4">Need urgent HVAC repair? We're available 24/7 for emergencies.</p>
+                                <a href="tel:+254700000000" class="btn bg-red-600 text-white hover:bg-red-700 w-full text-center">
+                                    Call Emergency Line
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
